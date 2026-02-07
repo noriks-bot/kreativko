@@ -675,33 +675,36 @@
         .status-badge.pending { background: var(--accent-amber-soft); color: var(--accent-amber); }
         .status-badge.failed { background: var(--accent-red-soft); color: var(--accent-red); }
 
-        /* Bonus Tiers */
-        .tier-section {
-            background: var(--bg-raised);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 28px;
+        /* Bonus Tier Cards - Two Big Cards Side by Side */
+        .tier-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
             margin-top: 32px;
         }
 
-        .tier-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .tier-card {
+            position: relative;
+        }
+
+        .tier-card.success-tier::before {
+            background: var(--gradient-2);
+        }
+
+        .tier-card.trophy-tier::before {
+            background: var(--gradient-3);
         }
 
         .tier-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
             gap: 10px;
+            margin-top: 20px;
         }
 
         .tier-item {
             text-align: center;
-            padding: 16px 8px;
+            padding: 14px 6px;
             background: var(--bg-subtle);
             border-radius: var(--radius);
             transition: all 0.15s ease;
@@ -749,9 +752,13 @@
         }
 
         .tier-bonus {
-            font-size: 18px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--accent-green);
+        }
+
+        @media (max-width: 900px) {
+            .tier-cards-grid { grid-template-columns: 1fr; }
         }
 
         /* Loading */
@@ -920,82 +927,100 @@
             </table>
         </div>
 
-        <!-- Bonus Tiers -->
-        <div class="tier-section">
-            <h3 class="tier-title">💰 Bonus Tiers (per successful creative)</h3>
-            <div class="tier-grid" id="tierGrid">
-                <div class="tier-item tier-danger" data-min="0">
-                    <div class="tier-percent">0-9%</div>
-                    <div class="tier-bonus">€0</div>
+        <!-- Bonus Tiers - Two Big Cards -->
+        <div class="tier-cards-grid">
+            <!-- Success Rate Bonus Card -->
+            <div class="creator-card tier-card success-tier">
+                <div class="creator-header">
+                    <div class="creator-avatar" style="background: var(--gradient-2);">💰</div>
+                    <div class="creator-info">
+                        <h3>Bonus Tiers</h3>
+                        <span>per successful creative</span>
+                    </div>
                 </div>
-                <div class="tier-item tier-warning" data-min="10">
-                    <div class="tier-percent">10-14%</div>
-                    <div class="tier-bonus">€0</div>
-                </div>
-                <div class="tier-item" data-min="15">
-                    <div class="tier-percent">15-19%</div>
-                    <div class="tier-bonus">€2</div>
-                </div>
-                <div class="tier-item" data-min="20">
-                    <div class="tier-percent">20-29%</div>
-                    <div class="tier-bonus">€3</div>
-                </div>
-                <div class="tier-item" data-min="30">
-                    <div class="tier-percent">30-39%</div>
-                    <div class="tier-bonus">€3.50</div>
-                </div>
-                <div class="tier-item" data-min="40">
-                    <div class="tier-percent">40-69%</div>
-                    <div class="tier-bonus">€5</div>
-                </div>
-                <div class="tier-item" data-min="70">
-                    <div class="tier-percent">70-100%</div>
-                    <div class="tier-bonus">€10</div>
-                </div>
-            </div>
-            
-            <h3 class="tier-title" style="margin-top: 28px;">🏆 TOP CREATIVES Bonus (500+ sales in 30 days)</h3>
-            <div class="tier-grid" id="topTierGrid">
-                <div class="tier-item tier-danger">
-                    <div class="tier-percent">0</div>
-                    <div class="tier-bonus">€0</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">1-5</div>
-                    <div class="tier-bonus">€40</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">6-10</div>
-                    <div class="tier-bonus">€50</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">11-15</div>
-                    <div class="tier-bonus">€60</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">16-20</div>
-                    <div class="tier-bonus">€70</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">21-30</div>
-                    <div class="tier-bonus">€80</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">31-40</div>
-                    <div class="tier-bonus">€90</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">41-50</div>
-                    <div class="tier-bonus">€100</div>
-                </div>
-                <div class="tier-item">
-                    <div class="tier-percent">51+</div>
-                    <div class="tier-bonus">Special</div>
+                <div class="tier-grid" id="tierGrid">
+                    <div class="tier-item tier-danger" data-min="0">
+                        <div class="tier-percent">0-9%</div>
+                        <div class="tier-bonus">€0 / creative</div>
+                    </div>
+                    <div class="tier-item tier-warning" data-min="10">
+                        <div class="tier-percent">10-14%</div>
+                        <div class="tier-bonus">€0 / creative</div>
+                    </div>
+                    <div class="tier-item" data-min="15">
+                        <div class="tier-percent">15-19%</div>
+                        <div class="tier-bonus">€2 / creative</div>
+                    </div>
+                    <div class="tier-item" data-min="20">
+                        <div class="tier-percent">20-29%</div>
+                        <div class="tier-bonus">€3 / creative</div>
+                    </div>
+                    <div class="tier-item" data-min="30">
+                        <div class="tier-percent">30-39%</div>
+                        <div class="tier-bonus">€3.50 / creative</div>
+                    </div>
+                    <div class="tier-item" data-min="40">
+                        <div class="tier-percent">40-69%</div>
+                        <div class="tier-bonus">€5 / creative</div>
+                    </div>
+                    <div class="tier-item" data-min="70">
+                        <div class="tier-percent">70-100%</div>
+                        <div class="tier-bonus">€10 / creative</div>
+                    </div>
                 </div>
             </div>
-            <p style="color: var(--text-muted); font-size: 12px; margin-top: 12px;">
-                Creatives with same ID across countries (HR/CZ/PL) count as one. Bonus per creative depends on total count that month.
-            </p>
+
+            <!-- Top Creatives Bonus Card -->
+            <div class="creator-card tier-card trophy-tier">
+                <div class="creator-header">
+                    <div class="creator-avatar" style="background: var(--gradient-3);">🏆</div>
+                    <div class="creator-info">
+                        <h3>TOP CREATIVES Bonus</h3>
+                        <span>500+ sales in 30 days</span>
+                    </div>
+                </div>
+                <div class="tier-grid" id="topTierGrid">
+                    <div class="tier-item tier-danger">
+                        <div class="tier-percent">0</div>
+                        <div class="tier-bonus">€0 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">1-5</div>
+                        <div class="tier-bonus">€40 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">6-10</div>
+                        <div class="tier-bonus">€50 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">11-15</div>
+                        <div class="tier-bonus">€60 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">16-20</div>
+                        <div class="tier-bonus">€70 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">21-30</div>
+                        <div class="tier-bonus">€80 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">31-40</div>
+                        <div class="tier-bonus">€90 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">41-50</div>
+                        <div class="tier-bonus">€100 / creative</div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-percent">51+</div>
+                        <div class="tier-bonus">Special</div>
+                    </div>
+                </div>
+                <p style="color: var(--text-muted); font-size: 11px; margin-top: 16px;">
+                    Creatives with same ID across countries (HR/CZ/PL) count as one. Bonus per creative depends on total count that month.
+                </p>
+            </div>
         </div>
     </div>
 
