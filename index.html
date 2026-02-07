@@ -1255,6 +1255,10 @@
                 `;
                 
                 // Card 2: Top 500+ Bonus
+                // Progress: show count out of 51 (max tier), markers at tier thresholds
+                const topProgress = Math.min((topCount / 51) * 100, 100);
+                const topProgressClass = topCount >= 21 ? 'success' : topCount >= 6 ? 'warning' : 'danger';
+                
                 const topCard = `
                     <div class="creator-card ${initials.toLowerCase()} trophy-card">
                         <div class="creator-header">
@@ -1272,6 +1276,22 @@
                             <div class="stat-box">
                                 <div class="label">Per Creative</div>
                                 <div class="value">${topCount > 0 ? '€' + (s.topBonus / topCount).toFixed(0) : '—'}</div>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span class="progress-label">Top 500+ Count</span>
+                                <span class="progress-value">${topCount}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${topProgressClass}" style="width: ${topProgress}%"></div>
+                                <div class="tier-marker" style="left: ${(1/51)*100}%"></div>
+                                <div class="tier-marker" style="left: ${(6/51)*100}%"></div>
+                                <div class="tier-marker" style="left: ${(11/51)*100}%"></div>
+                                <div class="tier-marker" style="left: ${(16/51)*100}%"></div>
+                                <div class="tier-marker" style="left: ${(21/51)*100}%"></div>
+                                <div class="tier-marker" style="left: ${(31/51)*100}%"></div>
+                                <div class="tier-marker" style="left: ${(41/51)*100}%"></div>
                             </div>
                         </div>
                         <div class="bonus-display trophy">
