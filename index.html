@@ -1033,6 +1033,7 @@
                 renderCreatorCards(data.creatorStats || {});
                 renderTopCreatives(data.topCreatives || {});
                 renderCreativesTable();
+                highlightCurrentTiers(data.creatorStats || {}, data.topCreatives || {});
                 
                 // Show/hide refresh button based on current month
                 const refreshBtn = document.getElementById('refreshBtn');
@@ -1171,6 +1172,58 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function highlightCurrentTiers(stats, topData) {
+            // Calculate current success rate (for creator: their rate, for admin: average)
+            let currentSuccessRate = 0;
+            if (userRole === 'creator' && userInitials && stats[userInitials]) {
+                currentSuccessRate = stats[userInitials].successRate || 0;
+            } else {
+                // Admin: use highest rate among all creators
+                for (const s of Object.values(stats)) {
+                    if (s.successRate > currentSuccessRate) currentSuccessRate = s.successRate;
+                }
+            }
+
+            // Highlight success tier
+            const successTiers = document.querySelectorAll('#tierGrid .tier-item');
+            successTiers.forEach(item => item.classList.remove('active'));
+            
+            if (currentSuccessRate >= 70) {
+                successTiers[4]?.classList.add('active'); // 70-100%
+            } else if (currentSuccessRate >= 40) {
+                successTiers[3]?.classList.add('active'); // 40-69%
+            } else if (currentSuccessRate >= 30) {
+                successTiers[2]?.classList.add('active'); // 30-39%
+            } else if (currentSuccessRate >= 20) {
+                successTiers[1]?.classList.add('active'); // 20-29%
+            } else if (currentSuccessRate >= 15) {
+                successTiers[0]?.classList.add('active'); // 15-19%
+            }
+
+            // Highlight top creatives tier
+            const topCount = topData?.count || 0;
+            const topTiers = document.querySelectorAll('#topTierGrid .tier-item');
+            topTiers.forEach(item => item.classList.remove('active'));
+            
+            if (topCount >= 51) {
+                topTiers[7]?.classList.add('active'); // 51+
+            } else if (topCount >= 41) {
+                topTiers[6]?.classList.add('active'); // 41-50
+            } else if (topCount >= 31) {
+                topTiers[5]?.classList.add('active'); // 31-40
+            } else if (topCount >= 21) {
+                topTiers[4]?.classList.add('active'); // 21-30
+            } else if (topCount >= 16) {
+                topTiers[3]?.classList.add('active'); // 16-20
+            } else if (topCount >= 11) {
+                topTiers[2]?.classList.add('active'); // 11-15
+            } else if (topCount >= 6) {
+                topTiers[1]?.classList.add('active'); // 6-10
+            } else if (topCount >= 1) {
+                topTiers[0]?.classList.add('active'); // 1-5
+            }
         }
 
         function renderCreativesTable() {
