@@ -650,6 +650,32 @@
             border: 1px solid var(--accent-green);
         }
 
+        .tier-item.tier-danger {
+            background: var(--accent-red-soft);
+        }
+
+        .tier-item.tier-danger .tier-bonus {
+            color: var(--accent-red);
+        }
+
+        .tier-item.tier-warning {
+            background: var(--accent-amber-soft);
+        }
+
+        .tier-item.tier-warning .tier-bonus {
+            color: var(--accent-amber);
+        }
+
+        .tier-item.tier-danger.active {
+            background: var(--accent-red-soft);
+            border: 2px solid var(--accent-red);
+        }
+
+        .tier-item.tier-warning.active {
+            background: var(--accent-amber-soft);
+            border: 2px solid var(--accent-amber);
+        }
+
         .tier-percent {
             font-size: 12px;
             color: var(--text-muted);
@@ -832,6 +858,14 @@
         <div class="tier-section">
             <h3 class="tier-title">💰 Bonus Tiers (per successful creative)</h3>
             <div class="tier-grid" id="tierGrid">
+                <div class="tier-item tier-danger" data-min="0">
+                    <div class="tier-percent">0-9%</div>
+                    <div class="tier-bonus">€0</div>
+                </div>
+                <div class="tier-item tier-warning" data-min="10">
+                    <div class="tier-percent">10-14%</div>
+                    <div class="tier-bonus">€0</div>
+                </div>
                 <div class="tier-item" data-min="15">
                     <div class="tier-percent">15-19%</div>
                     <div class="tier-bonus">€2</div>
@@ -1191,15 +1225,19 @@
             successTiers.forEach(item => item.classList.remove('active'));
             
             if (currentSuccessRate >= 70) {
-                successTiers[4]?.classList.add('active'); // 70-100%
+                successTiers[6]?.classList.add('active'); // 70-100%
             } else if (currentSuccessRate >= 40) {
-                successTiers[3]?.classList.add('active'); // 40-69%
+                successTiers[5]?.classList.add('active'); // 40-69%
             } else if (currentSuccessRate >= 30) {
-                successTiers[2]?.classList.add('active'); // 30-39%
+                successTiers[4]?.classList.add('active'); // 30-39%
             } else if (currentSuccessRate >= 20) {
-                successTiers[1]?.classList.add('active'); // 20-29%
+                successTiers[3]?.classList.add('active'); // 20-29%
             } else if (currentSuccessRate >= 15) {
-                successTiers[0]?.classList.add('active'); // 15-19%
+                successTiers[2]?.classList.add('active'); // 15-19%
+            } else if (currentSuccessRate >= 10) {
+                successTiers[1]?.classList.add('active'); // 10-14%
+            } else {
+                successTiers[0]?.classList.add('active'); // 0-9%
             }
 
             // Highlight top creatives tier
