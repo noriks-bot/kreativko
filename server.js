@@ -272,9 +272,28 @@ const server = http.createServer(async (req, res) => {
             // Parse creatives
             const creatives = {};
 
+            // Selected month as 2-digit string (e.g., "02" for February)
+            const selectedMonth = month ? String(month).padStart(2, '0') : null;
+
             for (const row of allData) {
                 const adName = row.ad_name || '';
                 const spend = parseFloat(row.spend || 0);
+
+                // Filter: must contain "NEW" (case insensitive)
+                if (!adName.toUpperCase().includes('NEW')) {
+                    continue;
+                }
+
+                // Filter: month in creative name must match selected month
+                // Format: ID333__07-02-26_HR_SHIRTS_NEW_VIDEO_GP → DD-MM-YY
+                // Look for pattern like _DD-MM-YY_ or __DD-MM-YY_
+                const dateMatch = adName.match(/(\d{2})-(\d{2})-(\d{2})/);
+                if (selectedMonth && dateMatch) {
+                    const creativeMonth = dateMatch[2]; // MM part
+                    if (creativeMonth !== selectedMonth) {
+                        continue;
+                    }
+                }
 
                 let purchases = 0;
                 if (row.actions) {

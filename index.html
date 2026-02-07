@@ -676,8 +676,8 @@
 
     <!-- Content -->
     <div class="content">
-        <!-- Summary Row -->
-        <div class="summary-row" id="summaryRow">
+        <!-- Summary Row (admin only) -->
+        <div class="summary-row" id="summaryRow" style="display: none;">
             <div class="summary-card">
                 <div class="summary-label">Total Creatives</div>
                 <div class="summary-value" id="totalCreatives">0</div>
@@ -806,6 +806,12 @@
                     userRole = data.role;
                     userInitials = data.initials;
                     document.getElementById('userDisplay').textContent = data.username + (data.role === 'admin' ? ' (admin)' : ` (${data.initials})`);
+                    
+                    // Show summary row only for admin
+                    if (data.role === 'admin') {
+                        document.getElementById('summaryRow').style.display = 'grid';
+                    }
+                    
                     initMonthFilter();
                     initTableFilters();
                     initRefreshButton();
