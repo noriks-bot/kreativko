@@ -1,2 +1,28 @@
-[2026-02-07T15:50:11.981Z] Kreativko server running on port 3001
-[2026-02-07T15:50:11.986Z] Dashboard: http://localhost:3001
+node:events:497
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1[2026-02-07T15:55:23.991Z] GET /
+[2026-02-07T15:55:29.155Z] HEAD /
+[2026-02-07T15:57:21.895Z] GET /
+[2026-02-07T15:57:51.681Z] GET /
+8)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v22.22.0
