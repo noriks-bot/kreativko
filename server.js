@@ -11,8 +11,12 @@ const CACHE_FILE = path.join(__dirname, 'cache.json');
 const FB_TOKEN = "EAAR1d7hDpEkBQs1YPhRZBgu4UZA8DLZBWzXXTItG3NL8LdpRmdhQ3nh1DHW0ZCfpOz25qT0n5Ca0PzrTcRtw1tHYZBATVMZCqn0rjrnUgZCYk6U57ZBisv0vpLLL9lIIn51bk7n5ISZBXdPTIDovAFHghGOsInJoqhvqQaWmey3qJByEiRTfcrWF3EsXYNZAm5yaRYL4y94n9H";
 const FB_AD_ACCOUNT = "act_1922887421998222";
 
-// Known creators (will be auto-detected from ad names)
-let knownCreators = new Set();
+// Known creators
+const CREATORS = {
+    'TK': { code: 'TK', name: 'Teja Klinar', color: '#e74c3c' },
+    'GP': { code: 'GP', name: 'Grega Povhe', color: '#3498db' },
+    'DM': { code: 'DM', name: 'Dusan Mojsilovic', color: '#2ecc71' }
+};
 
 function log(msg) {
     const timestamp = new Date().toISOString();
@@ -46,46 +50,29 @@ function httpGet(urlStr) {
 }
 
 // Parse ad name to extract creator and date
-// Format: NAME_DD-MM-YY_COUNTRY_PRODUCT_TYPE
+// Format: XXX_DD-MM-YY_COUNTRY_PRODUCT_TYPE-CREATOR
+// Example: 991_06-02-26_HR_MAJICA_NOVA-TK
 function parseAdName(adName) {
     if (!adName) return null;
     
-    // Try to match pattern: NAME_DD-MM-YY or NAME_DD.MM.YY or similar
-    const patterns = [
-        /^([A-Za-z]+)[-_](\d{1,2})[-.](\d{1,2})[-.](\d{2,4})/i,  // NAME_DD-MM-YY
-        /^(\d{1,2})[-.](\d{1,2})[-.]?(\d{0,4})?[-_.]([A-Za-z]+)/i, // DD-MM-YY_NAME or DD.MM_NAME
-    ];
+    // Look for creator code at the END of the ad name (after last dash or underscore)
+    // Pattern: -TK, -GP, -DM at the end
+    const creatorMatch = adName.match(/[-_](TK|GP|DM)$/i);
     
-    for (const pattern of patterns) {
-        const match = adName.match(pattern);
-        if (match) {
-            if (pattern === patterns[0]) {
-                return {
-                    creator: match[1].toUpperCase(),
-                    day: parseInt(match[2]),
-                    month: parseInt(match[3]),
-                    year: parseInt(match[4])
-                };
-            } else {
-                return {
-                    creator: match[4].toUpperCase(),
-                    day: parseInt(match[1]),
-                    month: parseInt(match[2]),
-                    year: match[3] ? parseInt(match[3]) : new Date().getFullYear() % 100
-                };
-            }
-        }
-    }
-    
-    // Try just extracting a name at the start
-    const simpleMatch = adName.match(/^([A-Za-z]{2,})/);
-    if (simpleMatch) {
-        const name = simpleMatch[1].toUpperCase();
-        // Filter out common prefixes that aren't names
-        const excluded = ['HR', 'CZ', 'PL', 'NORIKS', 'BOKSER', 'MAJIC', 'SHIRT', 'BLACK', 'WHITE', 'NEW', 'GP', 'TK', 'VIDEO'];
-        if (!excluded.includes(name)) {
-            return { creator: name, day: null, month: null, year: null };
-        }
+    if (creatorMatch) {
+        const creatorCode = creatorMatch[1].toUpperCase();
+        const creator = CREATORS[creatorCode];
+        
+        // Try to extract date from the name (format: DD-MM-YY or DD.MM.YY)
+        const dateMatch = adName.match(/(\d{1,2})[-.](\d{1,2})[-.](\d{2,4})/);
+        
+        return {
+            creatorCode: creatorCode,
+            creatorName: creator ? creator.name : creatorCode,
+            day: dateMatch ? parseInt(dateMatch[1]) : null,
+            month: dateMatch ? parseInt(dateMatch[2]) : null,
+            year: dateMatch ? parseInt(dateMatch[3]) : null
+        };
     }
     
     return null;
@@ -122,23 +109,26 @@ async function fetchAdsData(startDate, endDate) {
 function processCreatorStats(ads) {
     const creatorStats = {};
     
+    // Initialize all known creators
+    for (const [code, info] of Object.entries(CREATORS)) {
+        creatorStats[code] = {
+            code: code,
+            name: info.name,
+            color: info.color,
+            totalCreatives: 0,
+            successfulCreatives: 0,
+            totalSpend: 0,
+            totalPurchases: 0,
+            ads: []
+        };
+    }
+    
     for (const ad of ads) {
         const parsed = parseAdName(ad.ad_name);
-        if (!parsed || !parsed.creator) continue;
+        if (!parsed || !parsed.creatorCode) continue;
         
-        const creator = parsed.creator;
-        knownCreators.add(creator);
-        
-        if (!creatorStats[creator]) {
-            creatorStats[creator] = {
-                name: creator,
-                totalCreatives: 0,
-                successfulCreatives: 0,
-                totalSpend: 0,
-                totalPurchases: 0,
-                ads: []
-            };
-        }
+        const code = parsed.creatorCode;
+        if (!creatorStats[code]) continue; // Skip unknown creators
         
         // Count purchases
         let purchases = 0;
@@ -149,15 +139,15 @@ function processCreatorStats(ads) {
             }
         }
         
-        creatorStats[creator].totalCreatives++;
-        creatorStats[creator].totalSpend += parseFloat(ad.spend) || 0;
-        creatorStats[creator].totalPurchases += purchases;
+        creatorStats[code].totalCreatives++;
+        creatorStats[code].totalSpend += parseFloat(ad.spend) || 0;
+        creatorStats[code].totalPurchases += purchases;
         
         if (purchases >= 2) {
-            creatorStats[creator].successfulCreatives++;
+            creatorStats[code].successfulCreatives++;
         }
         
-        creatorStats[creator].ads.push({
+        creatorStats[code].ads.push({
             name: ad.ad_name,
             spend: parseFloat(ad.spend) || 0,
             purchases: purchases,
@@ -167,11 +157,11 @@ function processCreatorStats(ads) {
     }
     
     // Calculate success rates
-    for (const creator of Object.keys(creatorStats)) {
-        const stats = creatorStats[creator];
+    for (const code of Object.keys(creatorStats)) {
+        const stats = creatorStats[code];
         stats.successRate = stats.totalCreatives > 0 
             ? ((stats.successfulCreatives / stats.totalCreatives) * 100).toFixed(1)
-            : 0;
+            : '0.0';
     }
     
     return creatorStats;
@@ -205,8 +195,7 @@ async function handleAPI(req, res, pathname, query) {
                 success: true,
                 period: { startDate, endDate, year, month },
                 totalAds: ads.length,
-                creators: sorted,
-                knownCreators: Array.from(knownCreators)
+                creators: sorted
             }));
         } catch (e) {
             log(`Error: ${e.message}`);

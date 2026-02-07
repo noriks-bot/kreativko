@@ -493,10 +493,10 @@
                             const rankClass = i < 3 ? `rank-${i+1}` : 'rank-other';
                             
                             return `
-                                <tr onclick="showCreatorDetails('${c.name}')" style="cursor: pointer;">
+                                <tr onclick="showCreatorDetails('${c.code}')" style="cursor: pointer;">
                                     <td><div class="rank ${rankClass}">${i + 1}</div></td>
                                     <td>
-                                        <div class="creator-name">${c.name}</div>
+                                        <div class="creator-name">${c.name} <span style="opacity:0.5;font-size:12px;">(${c.code})</span></div>
                                         <div class="creator-meta">${c.totalPurchases} total purchases</div>
                                     </td>
                                     <td>${c.totalCreatives}</td>
