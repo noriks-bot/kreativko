@@ -14,7 +14,7 @@ const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 const USERS = {
     'noriks': { password: 'noriks2026', role: 'admin', initials: null },
     'teja': { password: 'teja', role: 'creator', initials: 'TK' },
-    'grega': { password: 'teja', role: 'creator', initials: 'GP' },
+    'grega': { password: 'grega', role: 'creator', initials: 'GP' },
     'dusan': { password: 'dusan', role: 'creator', initials: 'DM' }
 };
 
