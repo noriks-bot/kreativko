@@ -171,6 +171,36 @@ function processCreatorStats(ads) {
 async function handleAPI(req, res, pathname, query) {
     res.setHeader('Content-Type', 'application/json');
     
+    // New range-based API
+    if (pathname === '/api/range') {
+        try {
+            const now = new Date();
+            const startDate = query.start || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+            const endDate = query.end || now.toISOString().split('T')[0];
+            
+            log(`Fetching stats for ${startDate} to ${endDate}`);
+            
+            const ads = await fetchAdsData(startDate, endDate);
+            const stats = processCreatorStats(ads);
+            
+            // Sort by success rate descending
+            const sorted = Object.values(stats).sort((a, b) => 
+                parseFloat(b.successRate) - parseFloat(a.successRate)
+            );
+            
+            res.end(JSON.stringify({
+                success: true,
+                period: { startDate, endDate },
+                totalAds: ads.length,
+                creators: sorted
+            }));
+        } catch (e) {
+            log(`Error: ${e.message}`);
+            res.end(JSON.stringify({ success: false, error: e.message }));
+        }
+        return;
+    }
+    
     if (pathname === '/api/stats') {
         try {
             // Default to current month
@@ -208,11 +238,18 @@ async function handleAPI(req, res, pathname, query) {
         try {
             const creatorName = (query.name || '').toUpperCase();
             const now = new Date();
-            const year = query.year || now.getFullYear();
-            const month = query.month || (now.getMonth() + 1);
             
-            const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-            const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+            // Support both range and month-based queries
+            let startDate, endDate;
+            if (query.start && query.end) {
+                startDate = query.start;
+                endDate = query.end;
+            } else {
+                const year = query.year || now.getFullYear();
+                const month = query.month || (now.getMonth() + 1);
+                startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+                endDate = new Date(year, month, 0).toISOString().split('T')[0];
+            }
             
             const ads = await fetchAdsData(startDate, endDate);
             const stats = processCreatorStats(ads);
