@@ -26,5 +26,12 @@
     "initials": "GP",
     "createdAt": 1770480895417,
     "expiresAt": 1771085695417
+  },
+  "945eeaf10ad169ad3d0a4b261b06160eda44919ca749455f66cff2e27f7f5970": {
+    "username": "noriks",
+    "role": "admin",
+    "initials": null,
+    "createdAt": 1770481492533,
+    "expiresAt": 1771086292533
   }
 }

@@ -157,10 +157,70 @@ async function fetchCreativesFromMeta(year, month) {
         creatives[adName].purchases += purchases;
     }
 
-    // Mark successful (2+ purchases)
+    // Mark successful (2+ purchases) and extract creative ID
     for (const creative of Object.values(creatives)) {
         creative.successful = creative.purchases >= 2;
         creative.spend = Math.round(creative.spend * 100) / 100;
+        
+        // Extract creative ID (first part before __ or _)
+        // ID333__07-02-26_HR_SHIRTS_NEW_VIDEO_GP → ID333
+        const idMatch = creative.name.match(/^([A-Za-z0-9]+)(?:__|_)/);
+        creative.creativeId = idMatch ? idMatch[1] : creative.name;
+    }
+
+    // Group creatives by ID for TOP CREATIVES bonus calculation
+    const creativesByIdGlobal = {};
+    for (const creative of Object.values(creatives)) {
+        if (creative.creator === 'UNKNOWN') continue;
+        const id = creative.creativeId;
+        if (!creativesByIdGlobal[id]) {
+            creativesByIdGlobal[id] = {
+                creativeId: id,
+                creator: creative.creator,
+                creatorName: creative.creatorName,
+                totalPurchases: 0,
+                totalSpend: 0,
+                variants: []
+            };
+        }
+        creativesByIdGlobal[id].totalPurchases += creative.purchases;
+        creativesByIdGlobal[id].totalSpend += creative.spend;
+        creativesByIdGlobal[id].variants.push({
+            name: creative.name,
+            purchases: creative.purchases,
+            spend: creative.spend
+        });
+    }
+
+    // Calculate TOP CREATIVES (500+ sales)
+    const topCreatives = Object.values(creativesByIdGlobal)
+        .filter(c => c.totalPurchases >= 500)
+        .sort((a, b) => b.totalPurchases - a.totalPurchases);
+
+    // Calculate top creative bonus tier
+    const topCount = topCreatives.length;
+    let topBonusPerCreative = 0;
+    if (topCount >= 51) topBonusPerCreative = 100; // Special agreement, use 100 as base
+    else if (topCount >= 41) topBonusPerCreative = 100;
+    else if (topCount >= 31) topBonusPerCreative = 90;
+    else if (topCount >= 21) topBonusPerCreative = 80;
+    else if (topCount >= 16) topBonusPerCreative = 70;
+    else if (topCount >= 11) topBonusPerCreative = 60;
+    else if (topCount >= 6) topBonusPerCreative = 50;
+    else if (topCount >= 1) topBonusPerCreative = 40;
+
+    // Calculate top bonus per creator
+    const topBonusByCreator = { TK: 0, GP: 0, DM: 0 };
+    const topCreativesByCreator = { TK: [], GP: [], DM: [] };
+    for (const tc of topCreatives) {
+        if (topBonusByCreator[tc.creator] !== undefined) {
+            topBonusByCreator[tc.creator] += topBonusPerCreative;
+            topCreativesByCreator[tc.creator].push({
+                creativeId: tc.creativeId,
+                totalPurchases: tc.totalPurchases,
+                bonus: topBonusPerCreative
+            });
+        }
     }
 
     // Calculate stats per creator
@@ -178,7 +238,9 @@ async function fetchCreativesFromMeta(year, month) {
         else if (successRate >= 20) bonusPerPiece = 3;
         else if (successRate >= 15) bonusPerPiece = 2;
 
-        const totalBonus = Math.round(successful * bonusPerPiece * 100) / 100;
+        const successBonus = Math.round(successful * bonusPerPiece * 100) / 100;
+        const topBonus = topBonusByCreator[initials] || 0;
+        const totalBonus = Math.round((successBonus + topBonus) * 100) / 100;
 
         creatorStats[initials] = {
             initials,
@@ -187,6 +249,9 @@ async function fetchCreativesFromMeta(year, month) {
             successful,
             successRate: Math.round(successRate * 10) / 10,
             bonusPerPiece,
+            successBonus,
+            topCreatives: topCreativesByCreator[initials] || [],
+            topBonus,
             totalBonus
         };
     }
@@ -195,8 +260,32 @@ async function fetchCreativesFromMeta(year, month) {
         .filter(c => c.creator !== 'UNKNOWN')
         .sort((a, b) => b.purchases - a.purchases);
 
+    // Top creatives summary
+    const topCreativesSummary = {
+        count: topCount,
+        bonusPerCreative: topBonusPerCreative,
+        totalBonus: topCount * topBonusPerCreative,
+        tiers: [
+            { min: 1, max: 5, bonus: 40 },
+            { min: 6, max: 10, bonus: 50 },
+            { min: 11, max: 15, bonus: 60 },
+            { min: 16, max: 20, bonus: 70 },
+            { min: 21, max: 30, bonus: 80 },
+            { min: 31, max: 40, bonus: 90 },
+            { min: 41, max: 50, bonus: 100 },
+            { min: 51, max: null, bonus: 'Special' }
+        ],
+        creatives: topCreatives.map(tc => ({
+            creativeId: tc.creativeId,
+            creator: tc.creator,
+            totalPurchases: tc.totalPurchases,
+            bonus: topBonusPerCreative
+        }))
+    };
+
     return {
         period: { year: parseInt(year), month: parseInt(month) },
+        topCreatives: topCreativesSummary,
         creatives: creativesList,
         creatorStats,
         lastUpdated: new Date().toISOString()
@@ -479,11 +568,21 @@ const server = http.createServer(async (req, res) => {
                 }
             }
 
+            // Filter top creatives by role for non-admin
+            let filteredTopCreatives = data.topCreatives;
+            if (session.role === 'creator' && session.initials && filteredTopCreatives) {
+                filteredTopCreatives = {
+                    ...filteredTopCreatives,
+                    creatives: filteredTopCreatives.creatives.filter(tc => tc.creator === session.initials)
+                };
+            }
+
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({
                 period: data.period,
                 creatives: filteredCreatives,
                 creatorStats: filteredStats,
+                topCreatives: filteredTopCreatives,
                 userRole: session.role,
                 userInitials: session.initials,
                 lastUpdated: data.lastUpdated,

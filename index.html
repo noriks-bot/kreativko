@@ -410,6 +410,98 @@
             margin-top: 6px;
         }
 
+        .bonus-breakdown {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .bonus-line {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 4px 0;
+        }
+
+        /* Top Creatives Section */
+        .top-creatives-section {
+            background: var(--bg-raised);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .top-summary {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+        }
+
+        .top-summary-item {
+            padding: 8px 16px;
+            background: var(--accent-amber-soft);
+            border-radius: var(--radius);
+            color: var(--accent-amber);
+            font-weight: 600;
+        }
+
+        .top-creatives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .top-creative-card {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-creative-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .top-creative-info span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .top-creative-stats {
+            text-align: right;
+        }
+
+        .top-creative-sales {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent-amber);
+        }
+
+        .top-creative-bonus {
+            font-size: 12px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
         /* Creatives Table */
         .table-section {
             background: var(--bg-raised);
@@ -701,6 +793,15 @@
             <!-- Populated by JS -->
         </div>
 
+        <!-- Top Creatives Section (admin only) -->
+        <div class="top-creatives-section" id="topCreativesSection" style="display: none;">
+            <div class="section-header">
+                <h2>🏆 TOP CREATIVES (500+ Sales)</h2>
+                <div class="top-summary" id="topSummary"></div>
+            </div>
+            <div class="top-creatives-grid" id="topCreativesGrid"></div>
+        </div>
+
         <!-- Creatives Table -->
         <div class="table-section">
             <div class="table-header">
@@ -913,6 +1014,7 @@
                 allCreatives = data.creatives || [];
                 renderSummary(data.creatorStats || {});
                 renderCreatorCards(data.creatorStats || {});
+                renderTopCreatives(data.topCreatives || {});
                 renderCreativesTable();
                 
                 // Show/hide refresh button based on current month
@@ -950,6 +1052,46 @@
             document.getElementById('totalSuccessful').textContent = totalSuccessful;
             document.getElementById('avgSuccessRate').textContent = avgRate + '%';
             document.getElementById('totalBonus').textContent = '€' + totalBonusSum.toFixed(2);
+        }
+
+        function renderTopCreatives(topData) {
+            const section = document.getElementById('topCreativesSection');
+            const summary = document.getElementById('topSummary');
+            const grid = document.getElementById('topCreativesGrid');
+
+            // Only show for admin
+            if (userRole !== 'admin') {
+                section.style.display = 'none';
+                return;
+            }
+
+            if (!topData || !topData.creatives || topData.creatives.length === 0) {
+                section.style.display = 'block';
+                summary.innerHTML = '<span class="top-summary-item">No 500+ creatives yet</span>';
+                grid.innerHTML = '<p style="color: var(--text-muted); padding: 20px;">No creatives have reached 500 sales yet this month.</p>';
+                return;
+            }
+
+            section.style.display = 'block';
+            
+            summary.innerHTML = `
+                <span class="top-summary-item">${topData.count} creative${topData.count > 1 ? 's' : ''}</span>
+                <span class="top-summary-item">€${topData.bonusPerCreative}/each</span>
+                <span class="top-summary-item">Total: €${topData.totalBonus}</span>
+            `;
+
+            grid.innerHTML = topData.creatives.map(tc => `
+                <div class="top-creative-card">
+                    <div class="top-creative-info">
+                        <h4>${tc.creativeId}</h4>
+                        <span class="creator-badge ${tc.creator.toLowerCase()}">${tc.creator}</span>
+                    </div>
+                    <div class="top-creative-stats">
+                        <div class="top-creative-sales">${tc.totalPurchases}</div>
+                        <div class="top-creative-bonus">+€${tc.bonus}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderCreatorCards(stats) {
@@ -1004,7 +1146,10 @@
                         <div class="bonus-display">
                             <div class="bonus-label">Monthly Bonus</div>
                             <div class="bonus-amount">€${s.totalBonus.toFixed(2)}</div>
-                            <div class="bonus-rate">${s.bonusPerPiece > 0 ? '€' + s.bonusPerPiece + ' × ' + s.successful + ' successful' : 'Below 15% threshold'}</div>
+                            <div class="bonus-breakdown">
+                                <div class="bonus-line">${s.bonusPerPiece > 0 ? '✓ Success: €' + s.bonusPerPiece + ' × ' + s.successful + ' = €' + (s.successBonus || 0).toFixed(2) : '✗ Success: Below 15%'}</div>
+                                <div class="bonus-line">${s.topCreatives && s.topCreatives.length > 0 ? '🏆 Top 500+: ' + s.topCreatives.length + ' × €' + (s.topBonus / s.topCreatives.length).toFixed(0) + ' = €' + s.topBonus.toFixed(2) : '🏆 Top 500+: None yet'}</div>
+                            </div>
                         </div>
                     </div>
                 `;
