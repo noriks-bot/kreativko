@@ -253,6 +253,22 @@
             margin-bottom: 40px;
         }
 
+        .card-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--accent-green);
+        }
+
+        .card-title.trophy {
+            color: var(--accent-amber);
+        }
+
         .creator-card {
             background: var(--bg-raised);
             border: 1px solid var(--border-subtle);
@@ -893,31 +909,31 @@
             <div class="tier-grid" id="tierGrid">
                 <div class="tier-item tier-danger" data-min="0">
                     <div class="tier-percent">0-9%</div>
-                    <div class="tier-bonus">€0 / per creative</div>
+                    <div class="tier-bonus">€0 / creative</div>
                 </div>
                 <div class="tier-item tier-warning" data-min="10">
                     <div class="tier-percent">10-14%</div>
-                    <div class="tier-bonus">€0 / per creative</div>
+                    <div class="tier-bonus">€0 / creative</div>
                 </div>
                 <div class="tier-item" data-min="15">
                     <div class="tier-percent">15-19%</div>
-                    <div class="tier-bonus">€2 / per creative</div>
+                    <div class="tier-bonus">€2 / creative</div>
                 </div>
                 <div class="tier-item" data-min="20">
                     <div class="tier-percent">20-29%</div>
-                    <div class="tier-bonus">€3 / per creative</div>
+                    <div class="tier-bonus">€3 / creative</div>
                 </div>
                 <div class="tier-item" data-min="30">
                     <div class="tier-percent">30-39%</div>
-                    <div class="tier-bonus">€3.50 / per creative</div>
+                    <div class="tier-bonus">€3.50 / creative</div>
                 </div>
                 <div class="tier-item" data-min="40">
                     <div class="tier-percent">40-69%</div>
-                    <div class="tier-bonus">€5 / per creative</div>
+                    <div class="tier-bonus">€5 / creative</div>
                 </div>
                 <div class="tier-item" data-min="70">
                     <div class="tier-percent">70-100%</div>
-                    <div class="tier-bonus">€10 / per creative</div>
+                    <div class="tier-bonus">€10 / creative</div>
                 </div>
             </div>
             
@@ -925,35 +941,35 @@
             <div class="tier-grid" id="topTierGrid">
                 <div class="tier-item tier-danger">
                     <div class="tier-percent">0</div>
-                    <div class="tier-bonus">€0 / per creative</div>
+                    <div class="tier-bonus">€0 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">1-5</div>
-                    <div class="tier-bonus">€40 / per creative</div>
+                    <div class="tier-bonus">€40 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">6-10</div>
-                    <div class="tier-bonus">€50 / per creative</div>
+                    <div class="tier-bonus">€50 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">11-15</div>
-                    <div class="tier-bonus">€60 / per creative</div>
+                    <div class="tier-bonus">€60 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">16-20</div>
-                    <div class="tier-bonus">€70 / per creative</div>
+                    <div class="tier-bonus">€70 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">21-30</div>
-                    <div class="tier-bonus">€80 / per creative</div>
+                    <div class="tier-bonus">€80 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">31-40</div>
-                    <div class="tier-bonus">€90 / per creative</div>
+                    <div class="tier-bonus">€90 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">41-50</div>
-                    <div class="tier-bonus">€100 / per creative</div>
+                    <div class="tier-bonus">€100 / creative</div>
                 </div>
                 <div class="tier-item">
                     <div class="tier-percent">51+</div>
@@ -1211,14 +1227,16 @@
                 
                 // Card 1: Success Rate Bonus
                 const successCard = `
-                    <div class="creator-card ${initials.toLowerCase()}">
-                        <div class="creator-header">
-                            <div class="creator-avatar">${initials}</div>
-                            <div class="creator-info">
-                                <h3>${s.name}</h3>
-                                <span>💰 Success Rate Bonus</span>
+                    <div class="card-wrapper">
+                        <h2 class="card-title">💰 Success Rate Bonus</h2>
+                        <div class="creator-card ${initials.toLowerCase()}">
+                            <div class="creator-header">
+                                <div class="creator-avatar">${initials}</div>
+                                <div class="creator-info">
+                                    <h3>${s.name}</h3>
+                                    <span>@${initials.toLowerCase()}</span>
+                                </div>
                             </div>
-                        </div>
                         <div class="creator-stats">
                             <div class="stat-box">
                                 <div class="label">Creatives</div>
@@ -1251,6 +1269,7 @@
                                 <div class="bonus-line">${s.bonusPerPiece > 0 ? '€' + s.bonusPerPiece + ' × ' + s.successful + ' successful' : '✗ Below 15% threshold'}</div>
                             </div>
                         </div>
+                        </div>
                     </div>
                 `;
                 
@@ -1260,14 +1279,16 @@
                 const topProgressClass = topCount >= 21 ? 'success' : topCount >= 6 ? 'warning' : 'danger';
                 
                 const topCard = `
-                    <div class="creator-card ${initials.toLowerCase()} trophy-card">
-                        <div class="creator-header">
-                            <div class="creator-avatar">${initials}</div>
-                            <div class="creator-info">
-                                <h3>${s.name}</h3>
-                                <span>🏆 Top 500+ Bonus</span>
+                    <div class="card-wrapper">
+                        <h2 class="card-title trophy">🏆 Top 500+ Bonus</h2>
+                        <div class="creator-card ${initials.toLowerCase()} trophy-card">
+                            <div class="creator-header">
+                                <div class="creator-avatar">${initials}</div>
+                                <div class="creator-info">
+                                    <h3>${s.name}</h3>
+                                    <span>@${initials.toLowerCase()}</span>
+                                </div>
                             </div>
-                        </div>
                         <div class="creator-stats">
                             <div class="stat-box">
                                 <div class="label">Top Creatives</div>
@@ -1300,6 +1321,7 @@
                             <div class="bonus-breakdown">
                                 <div class="bonus-line">${topCount > 0 ? topCount + ' creatives with 500+ sales' : 'No creatives with 500+ sales yet'}</div>
                             </div>
+                        </div>
                         </div>
                     </div>
                 `;
