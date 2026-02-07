@@ -108,6 +108,39 @@
             gap: 16px;
         }
 
+        /* User Info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--bg-subtle);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .user-info span {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            padding: 6px 12px;
+            background: var(--accent-red-soft);
+            border: none;
+            border-radius: 6px;
+            color: var(--accent-red);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
         /* Month Filter */
         .month-filter {
             display: flex;
@@ -616,6 +649,10 @@
             </div>
         </div>
         <div class="header-right">
+            <div class="user-info" id="userInfo">
+                <span id="userDisplay"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
             <div class="month-filter" id="monthFilter">
                 <button class="month-btn" data-month="1">JAN</button>
                 <button class="month-btn" data-month="2">FEB</button>
@@ -747,20 +784,44 @@
     </div>
 
     <script>
-        // API calls go to the dashboard server
-        const API_BASE = '/dashboard/api';
+        // API calls go to Kreativko server
+        const API_BASE = '/kreativko/api';
         let currentMonth = new Date().getMonth() + 1;
         let currentYear = new Date().getFullYear();
         let allCreatives = [];
         let currentFilter = 'all';
+        let userRole = 'admin';
+        let userInitials = null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            initMonthFilter();
-            initTableFilters();
-            initRefreshButton();
-            loadData();
+            checkSession();
         });
+
+        async function checkSession() {
+            try {
+                const res = await fetch(`${API_BASE}/session`, { credentials: 'include' });
+                const data = await res.json();
+                if (data.ok) {
+                    userRole = data.role;
+                    userInitials = data.initials;
+                    document.getElementById('userDisplay').textContent = data.username + (data.role === 'admin' ? ' (admin)' : ` (${data.initials})`);
+                    initMonthFilter();
+                    initTableFilters();
+                    initRefreshButton();
+                    loadData();
+                } else {
+                    window.location.href = '/kreativko/login';
+                }
+            } catch (e) {
+                window.location.href = '/kreativko/login';
+            }
+        }
+
+        async function logout() {
+            await fetch(`${API_BASE}/logout`, { credentials: 'include' });
+            window.location.href = '/kreativko/login';
+        }
 
         function initMonthFilter() {
             const buttons = document.querySelectorAll('.month-btn');
@@ -779,6 +840,16 @@
         }
 
         function initTableFilters() {
+            const container = document.querySelector('.table-filters');
+            
+            // If creator role, only show their filter
+            if (userRole === 'creator' && userInitials) {
+                container.innerHTML = `
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="successful">✓ Successful</button>
+                `;
+            }
+            
             const buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -818,8 +889,7 @@
                 renderCreativesTable();
             } catch (error) {
                 console.error('Failed to load data:', error);
-                // Redirect to dashboard login
-                window.location.href = '/dashboard/login?redirect=/kreativko/';
+                window.location.href = '/kreativko/login';
             } finally {
                 overlay.classList.add('hidden');
                 refreshBtn.classList.remove('loading');
@@ -847,7 +917,12 @@
 
         function renderCreatorCards(stats) {
             const grid = document.getElementById('creatorsGrid');
-            const creators = ['TK', 'GP', 'DM'];
+            let creators = ['TK', 'GP', 'DM'];
+            
+            // If creator role, only show their card
+            if (userRole === 'creator' && userInitials) {
+                creators = [userInitials];
+            }
             
             grid.innerHTML = creators.map(initials => {
                 const s = stats[initials] || { 

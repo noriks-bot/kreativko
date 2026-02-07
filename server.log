@@ -4,11 +4,9 @@ node:events:497
 
 Error: listen EADDRINUSE: address already in use :::3001
     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
-    at listenInCluster (node:net:1[2026-02-07T15:55:23.991Z] GET /
-[2026-02-07T15:55:29.155Z] HEAD /
-[2026-02-07T15:57:21.895Z] GET /
-[2026-02-07T15:57:51.681Z] GET /
-8)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at Object.<anonymous> (/home/ec2-user/.openclaw/workspace2/kreativko/server.js:414:8)
     at Module._compile (node:internal/modules/cjs/loader:1706:14)
     at Object..js (node:internal/modules/cjs/loader:1839:10)
     at Module.load (node:internal/modules/cjs/loader:1441:32)
