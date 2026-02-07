@@ -868,8 +868,29 @@
         }
 
         function initRefreshButton() {
-            document.getElementById('refreshBtn').addEventListener('click', () => {
-                loadData();
+            document.getElementById('refreshBtn').addEventListener('click', async () => {
+                const btn = document.getElementById('refreshBtn');
+                btn.classList.add('loading');
+                btn.disabled = true;
+                
+                try {
+                    const res = await fetch(`${API_BASE}/refresh?year=${currentYear}&month=${currentMonth}`, {
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+                    
+                    if (data.ok) {
+                        loadData();
+                    } else {
+                        alert(data.error || 'Refresh failed');
+                        btn.classList.remove('loading');
+                        btn.disabled = false;
+                    }
+                } catch (e) {
+                    alert('Refresh failed: ' + e.message);
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
             });
         }
 
@@ -893,6 +914,16 @@
                 renderSummary(data.creatorStats || {});
                 renderCreatorCards(data.creatorStats || {});
                 renderCreativesTable();
+                
+                // Show/hide refresh button based on current month
+                const refreshBtn = document.getElementById('refreshBtn');
+                if (data.isCurrentMonth) {
+                    refreshBtn.style.display = 'inline-flex';
+                    refreshBtn.disabled = false;
+                    refreshBtn.classList.remove('loading');
+                } else {
+                    refreshBtn.style.display = 'none';
+                }
             } catch (error) {
                 console.error('Failed to load data:', error);
                 window.location.href = '/kreativko/login';

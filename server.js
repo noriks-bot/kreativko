@@ -7,7 +7,232 @@ const url = require('url');
 
 const PORT = 3001;
 const SESSIONS_FILE = path.join(__dirname, 'sessions.json');
+const CACHE_DIR = path.join(__dirname, 'cache');
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+// Facebook API config
+const FB_TOKEN = 'EAAR1d7hDpEkBQs1YPhRZBgu4UZA8DLZBWzXXTItG3NL8LdpRmdhQ3nh1DHW0ZCfpOz25qT0n5Ca0PzrTcRtw1tHYZBATVMZCqn0rjrnUgZCYk6U57ZBisv0vpLLL9lIIn51bk7n5ISZBXdPTIDovAFHghGOsInJoqhvqQaWmey3qJByEiRTfcrWF3EsXYNZAm5yaRYL4y94n9H';
+const FB_ACCOUNT = 'act_1922887421998222';
+
+// Ensure cache directory exists
+if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+}
+
+// Monthly cache functions
+function getCacheFile(year, month) {
+    return path.join(CACHE_DIR, `${year}-${String(month).padStart(2, '0')}.json`);
+}
+
+function loadMonthCache(year, month) {
+    const file = getCacheFile(year, month);
+    try {
+        if (fs.existsSync(file)) {
+            return JSON.parse(fs.readFileSync(file, 'utf8'));
+        }
+    } catch (e) { console.log(`No cache for ${year}-${month}`); }
+    return null;
+}
+
+function saveMonthCache(year, month, data) {
+    const file = getCacheFile(year, month);
+    try {
+        fs.writeFileSync(file, JSON.stringify(data, null, 2));
+        console.log(`Saved cache for ${year}-${month}`);
+    } catch (e) { console.error(`Failed to save cache: ${e.message}`); }
+}
+
+function isCurrentMonth(year, month) {
+    const now = new Date();
+    return now.getFullYear() === parseInt(year) && (now.getMonth() + 1) === parseInt(month);
+}
+
+function isPastMonth(year, month) {
+    const now = new Date();
+    const nowYear = now.getFullYear();
+    const nowMonth = now.getMonth() + 1;
+    if (parseInt(year) < nowYear) return true;
+    if (parseInt(year) === nowYear && parseInt(month) < nowMonth) return true;
+    return false;
+}
+
+// Fetch creatives from Meta API
+async function fetchCreativesFromMeta(year, month) {
+    const selectedMonth = String(month).padStart(2, '0');
+    const today = new Date().toISOString().split('T')[0];
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDate = `${year}-${selectedMonth}-${lastDay}`;
+    
+    const params = new URLSearchParams({
+        access_token: FB_TOKEN,
+        time_range: JSON.stringify({ 
+            since: `${year}-${selectedMonth}-01`,
+            until: endDate > today ? today : endDate
+        }),
+        fields: 'ad_name,spend,actions',
+        level: 'ad',
+        limit: 5000
+    });
+
+    const fbUrl = `https://graph.facebook.com/v21.0/${FB_ACCOUNT}/insights?${params}`;
+    
+    const fetchFB = (url, allData = []) => new Promise((resolve) => {
+        https.get(url, res => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.data) allData = allData.concat(parsed.data);
+                    if (parsed.paging?.next) {
+                        fetchFB(parsed.paging.next, allData).then(resolve);
+                    } else {
+                        resolve(allData);
+                    }
+                } catch (e) { resolve(allData); }
+            });
+        }).on('error', () => resolve(allData));
+    });
+
+    const allData = await fetchFB(fbUrl);
+
+    // Creator mapping
+    const creators = {
+        'TK': { name: 'Teja Klinar', initials: 'TK' },
+        'GP': { name: 'Grega Povhe', initials: 'GP' },
+        'DM': { name: 'Dusan Mojsilovic', initials: 'DM' }
+    };
+
+    // Parse creatives
+    const creatives = {};
+
+    for (const row of allData) {
+        const adName = row.ad_name || '';
+        const spend = parseFloat(row.spend || 0);
+
+        // Filter: must contain "NEW" (case insensitive)
+        if (!adName.toUpperCase().includes('NEW')) {
+            continue;
+        }
+
+        // Filter: month in creative name must match selected month
+        const dateMatch = adName.match(/(\d{2})-(\d{2})-(\d{2})/);
+        if (dateMatch) {
+            const creativeMonth = dateMatch[2];
+            if (creativeMonth !== selectedMonth) {
+                continue;
+            }
+        }
+
+        let purchases = 0;
+        if (row.actions) {
+            for (const action of row.actions) {
+                if (action.action_type === 'purchase' || action.action_type === 'omni_purchase') {
+                    purchases += parseInt(action.value || 0);
+                }
+            }
+        }
+
+        // Extract creator initials
+        let creatorInitials = 'UNKNOWN';
+        const endMatch = adName.match(/[-_](TK|GP|DM)$/i);
+        const midMatch = adName.match(/[-_](TK|GP|DM)[-_]/i);
+        if (endMatch) {
+            creatorInitials = endMatch[1].toUpperCase();
+        } else if (midMatch) {
+            creatorInitials = midMatch[1].toUpperCase();
+        }
+
+        if (!creatives[adName]) {
+            creatives[adName] = {
+                name: adName,
+                creator: creatorInitials,
+                creatorName: creators[creatorInitials]?.name || 'Unknown',
+                spend: 0,
+                purchases: 0,
+                successful: false
+            };
+        }
+        creatives[adName].spend += spend;
+        creatives[adName].purchases += purchases;
+    }
+
+    // Mark successful (2+ purchases)
+    for (const creative of Object.values(creatives)) {
+        creative.successful = creative.purchases >= 2;
+        creative.spend = Math.round(creative.spend * 100) / 100;
+    }
+
+    // Calculate stats per creator
+    const creatorStats = {};
+    for (const initials of ['TK', 'GP', 'DM']) {
+        const creatorCreatives = Object.values(creatives).filter(c => c.creator === initials);
+        const total = creatorCreatives.length;
+        const successful = creatorCreatives.filter(c => c.successful).length;
+        const successRate = total > 0 ? (successful / total) * 100 : 0;
+
+        let bonusPerPiece = 0;
+        if (successRate >= 70) bonusPerPiece = 10;
+        else if (successRate >= 40) bonusPerPiece = 5;
+        else if (successRate >= 30) bonusPerPiece = 3.5;
+        else if (successRate >= 20) bonusPerPiece = 3;
+        else if (successRate >= 15) bonusPerPiece = 2;
+
+        const totalBonus = Math.round(successful * bonusPerPiece * 100) / 100;
+
+        creatorStats[initials] = {
+            initials,
+            name: creators[initials]?.name || 'Unknown',
+            total,
+            successful,
+            successRate: Math.round(successRate * 10) / 10,
+            bonusPerPiece,
+            totalBonus
+        };
+    }
+
+    const creativesList = Object.values(creatives)
+        .filter(c => c.creator !== 'UNKNOWN')
+        .sort((a, b) => b.purchases - a.purchases);
+
+    return {
+        period: { year: parseInt(year), month: parseInt(month) },
+        creatives: creativesList,
+        creatorStats,
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+// Refresh current month data
+async function refreshCurrentMonth() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    console.log(`Refreshing data for ${year}-${month}...`);
+    const data = await fetchCreativesFromMeta(year, month);
+    saveMonthCache(year, month, data);
+    console.log(`Refresh complete. ${data.creatives.length} creatives.`);
+    return data;
+}
+
+// Schedule daily refresh at 3 AM
+function scheduleDailyRefresh() {
+    const now = new Date();
+    const next3AM = new Date(now);
+    next3AM.setHours(3, 0, 0, 0);
+    if (now >= next3AM) {
+        next3AM.setDate(next3AM.getDate() + 1);
+    }
+    const msUntil3AM = next3AM - now;
+    
+    console.log(`Next refresh scheduled at ${next3AM.toISOString()}`);
+    
+    setTimeout(() => {
+        refreshCurrentMonth().catch(console.error);
+        // Then every 24 hours
+        setInterval(() => refreshCurrentMonth().catch(console.error), 24 * 60 * 60 * 1000);
+    }, msUntil3AM);
+}
 
 // Users with role-based access
 // role: 'admin' = sees all, 'creator' = sees only their initials
@@ -206,7 +431,7 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // Creatives API (proxies to dashboard, filters by role)
+    // Creatives API - uses cache for past months, fresh data for current month
     if (pathname === '/api/creatives') {
         const session = getSession(req);
         if (!session) {
@@ -216,122 +441,27 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
-        const year = parsed.query.year || new Date().getFullYear();
-        const month = parsed.query.month || '';
+        const year = parseInt(parsed.query.year) || new Date().getFullYear();
+        const month = parseInt(parsed.query.month) || (new Date().getMonth() + 1);
 
         try {
-            // Fetch from dashboard API (no auth needed for internal call)
-            const params = new URLSearchParams({
-                access_token: 'EAAR1d7hDpEkBQs1YPhRZBgu4UZA8DLZBWzXXTItG3NL8LdpRmdhQ3nh1DHW0ZCfpOz25qT0n5Ca0PzrTcRtw1tHYZBATVMZCqn0rjrnUgZCYk6U57ZBisv0vpLLL9lIIn51bk7n5ISZBXdPTIDovAFHghGOsInJoqhvqQaWmey3qJByEiRTfcrWF3EsXYNZAm5yaRYL4y94n9H',
-                time_range: JSON.stringify({ 
-                    since: month ? `${year}-${String(month).padStart(2, '0')}-01` : `${year}-01-01`,
-                    until: (() => {
-                        const today = new Date().toISOString().split('T')[0];
-                        if (month) {
-                            const lastDay = new Date(year, month, 0).getDate();
-                            const endDate = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
-                            return endDate > today ? today : endDate;
-                        }
-                        return today;
-                    })()
-                }),
-                fields: 'ad_name,spend,actions',
-                level: 'ad',
-                limit: 5000
-            });
-
-            const fbUrl = `https://graph.facebook.com/v21.0/act_1922887421998222/insights?${params}`;
+            let data;
             
-            const fetchFB = (url, allData = []) => new Promise((resolve) => {
-                https.get(url, res => {
-                    let data = '';
-                    res.on('data', chunk => data += chunk);
-                    res.on('end', () => {
-                        try {
-                            const parsed = JSON.parse(data);
-                            if (parsed.data) allData = allData.concat(parsed.data);
-                            if (parsed.paging?.next) {
-                                fetchFB(parsed.paging.next, allData).then(resolve);
-                            } else {
-                                resolve(allData);
-                            }
-                        } catch (e) { resolve(allData); }
-                    });
-                }).on('error', () => resolve(allData));
-            });
-
-            const allData = await fetchFB(fbUrl);
-
-            // Creator mapping
-            const creators = {
-                'TK': { name: 'Teja Klinar', initials: 'TK' },
-                'GP': { name: 'Grega Povhe', initials: 'GP' },
-                'DM': { name: 'Dusan Mojsilovic', initials: 'DM' }
-            };
-
-            // Parse creatives
-            const creatives = {};
-
-            // Selected month as 2-digit string (e.g., "02" for February)
-            const selectedMonth = month ? String(month).padStart(2, '0') : null;
-
-            for (const row of allData) {
-                const adName = row.ad_name || '';
-                const spend = parseFloat(row.spend || 0);
-
-                // Filter: must contain "NEW" (case insensitive)
-                if (!adName.toUpperCase().includes('NEW')) {
-                    continue;
+            // For past months, use cached data only
+            if (isPastMonth(year, month)) {
+                data = loadMonthCache(year, month);
+                if (!data) {
+                    // No cache, fetch and save (one-time for past months)
+                    data = await fetchCreativesFromMeta(year, month);
+                    saveMonthCache(year, month, data);
                 }
-
-                // Filter: month in creative name must match selected month
-                // Format: ID333__07-02-26_HR_SHIRTS_NEW_VIDEO_GP → DD-MM-YY
-                // Look for pattern like _DD-MM-YY_ or __DD-MM-YY_
-                const dateMatch = adName.match(/(\d{2})-(\d{2})-(\d{2})/);
-                if (selectedMonth && dateMatch) {
-                    const creativeMonth = dateMatch[2]; // MM part
-                    if (creativeMonth !== selectedMonth) {
-                        continue;
-                    }
+            } else {
+                // Current month - try cache first, fetch if empty
+                data = loadMonthCache(year, month);
+                if (!data) {
+                    data = await fetchCreativesFromMeta(year, month);
+                    saveMonthCache(year, month, data);
                 }
-
-                let purchases = 0;
-                if (row.actions) {
-                    for (const action of row.actions) {
-                        if (action.action_type === 'purchase' || action.action_type === 'omni_purchase') {
-                            purchases += parseInt(action.value || 0);
-                        }
-                    }
-                }
-
-                // Extract creator initials
-                let creatorInitials = 'UNKNOWN';
-                const endMatch = adName.match(/[-_](TK|GP|DM)$/i);
-                const midMatch = adName.match(/[-_](TK|GP|DM)[-_]/i);
-                if (endMatch) {
-                    creatorInitials = endMatch[1].toUpperCase();
-                } else if (midMatch) {
-                    creatorInitials = midMatch[1].toUpperCase();
-                }
-
-                if (!creatives[adName]) {
-                    creatives[adName] = {
-                        name: adName,
-                        creator: creatorInitials,
-                        creatorName: creators[creatorInitials]?.name || 'Unknown',
-                        spend: 0,
-                        purchases: 0,
-                        successful: false
-                    };
-                }
-                creatives[adName].spend += spend;
-                creatives[adName].purchases += purchases;
-            }
-
-            // Mark successful (2+ purchases)
-            for (const creative of Object.values(creatives)) {
-                creative.successful = creative.purchases >= 2;
-                creative.spend = Math.round(creative.spend * 100) / 100;
             }
 
             // Filter by user role
@@ -340,52 +470,70 @@ const server = http.createServer(async (req, res) => {
                 visibleInitials = [session.initials];
             }
 
-            // Calculate stats per creator
-            const creatorStats = {};
+            // Filter creatives and stats by role
+            const filteredCreatives = data.creatives.filter(c => visibleInitials.includes(c.creator));
+            const filteredStats = {};
             for (const initials of visibleInitials) {
-                const creatorCreatives = Object.values(creatives).filter(c => c.creator === initials);
-                const total = creatorCreatives.length;
-                const successful = creatorCreatives.filter(c => c.successful).length;
-                const successRate = total > 0 ? (successful / total) * 100 : 0;
-
-                let bonusPerPiece = 0;
-                if (successRate >= 70) bonusPerPiece = 10;
-                else if (successRate >= 40) bonusPerPiece = 5;
-                else if (successRate >= 30) bonusPerPiece = 3.5;
-                else if (successRate >= 20) bonusPerPiece = 3;
-                else if (successRate >= 15) bonusPerPiece = 2;
-
-                const totalBonus = Math.round(successful * bonusPerPiece * 100) / 100;
-
-                creatorStats[initials] = {
-                    initials,
-                    name: creators[initials]?.name || 'Unknown',
-                    total,
-                    successful,
-                    successRate: Math.round(successRate * 10) / 10,
-                    bonusPerPiece,
-                    totalBonus
-                };
+                if (data.creatorStats[initials]) {
+                    filteredStats[initials] = data.creatorStats[initials];
+                }
             }
-
-            // Filter creatives list
-            const filteredCreatives = Object.values(creatives)
-                .filter(c => visibleInitials.includes(c.creator))
-                .sort((a, b) => b.purchases - a.purchases);
 
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({
-                period: { year: parseInt(year), month: month ? parseInt(month) : null },
+                period: data.period,
                 creatives: filteredCreatives,
-                creatorStats,
+                creatorStats: filteredStats,
                 userRole: session.role,
-                userInitials: session.initials
+                userInitials: session.initials,
+                lastUpdated: data.lastUpdated,
+                isCurrentMonth: isCurrentMonth(year, month)
             }));
 
         } catch (error) {
             res.statusCode = 500;
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({ error: error.message }));
+        }
+        return;
+    }
+
+    // Refresh API - only works for current month
+    if (pathname === '/api/refresh') {
+        const session = getSession(req);
+        if (!session) {
+            res.statusCode = 401;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Unauthorized' }));
+            return;
+        }
+
+        const year = parseInt(parsed.query.year) || new Date().getFullYear();
+        const month = parseInt(parsed.query.month) || (new Date().getMonth() + 1);
+
+        res.setHeader('Content-Type', 'application/json');
+
+        // Only allow refresh for current month
+        if (!isCurrentMonth(year, month)) {
+            res.end(JSON.stringify({ 
+                ok: false, 
+                error: 'Cannot refresh past months. Data is frozen.' 
+            }));
+            return;
+        }
+
+        try {
+            const data = await fetchCreativesFromMeta(year, month);
+            saveMonthCache(year, month, data);
+            res.end(JSON.stringify({ 
+                ok: true, 
+                message: 'Data refreshed',
+                creatives: data.creatives.length,
+                lastUpdated: data.lastUpdated
+            }));
+        } catch (error) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ ok: false, error: error.message }));
         }
         return;
     }
@@ -430,6 +578,16 @@ const server = http.createServer(async (req, res) => {
 
 loadSessions();
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
     console.log(`Kreativko running on port ${PORT}`);
+    
+    // Initial refresh of current month
+    try {
+        await refreshCurrentMonth();
+    } catch (e) {
+        console.error('Initial refresh failed:', e.message);
+    }
+    
+    // Schedule daily refresh at 3 AM
+    scheduleDailyRefresh();
 });
