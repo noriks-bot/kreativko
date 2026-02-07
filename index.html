@@ -396,42 +396,96 @@
         }
 
         /* Bonus */
+        /* Bonus Grid - Two boxes side by side */
+        .bonus-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
         .bonus-display {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
             border: 1px solid rgba(16, 185, 129, 0.2);
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 16px;
             text-align: center;
         }
 
+        .bonus-display.trophy {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .bonus-display.trophy .bonus-label {
+            color: var(--accent-amber);
+        }
+
+        .bonus-display.trophy .bonus-amount {
+            color: var(--accent-amber);
+        }
+
+        .bonus-display.inactive {
+            opacity: 0.5;
+        }
+
         .bonus-label {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--accent-green);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .bonus-amount {
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 800;
             color: var(--accent-green);
         }
 
         .bonus-rate {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .bonus-breakdown {
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 8px;
             border-top: 1px solid rgba(16, 185, 129, 0.2);
         }
 
+        .bonus-display.trophy .bonus-breakdown {
+            border-top-color: rgba(245, 158, 11, 0.2);
+        }
+
         .bonus-line {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-secondary);
-            margin: 4px 0;
+            margin: 2px 0;
+        }
+
+        /* Total bonus row */
+        .bonus-total {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-subtle);
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .bonus-total-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .bonus-total-amount {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-amber) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         /* Top Creatives Section */
@@ -1217,13 +1271,27 @@
                                 <div class="tier-marker" style="left: 70%"></div>
                             </div>
                         </div>
-                        <div class="bonus-display">
-                            <div class="bonus-label">Monthly Bonus</div>
-                            <div class="bonus-amount">€${s.totalBonus.toFixed(2)}</div>
-                            <div class="bonus-breakdown">
-                                <div class="bonus-line">${s.bonusPerPiece > 0 ? '✓ Success: €' + s.bonusPerPiece + ' × ' + s.successful + ' = €' + (s.successBonus || 0).toFixed(2) : '✗ Success: Below 15%'}</div>
-                                <div class="bonus-line">${s.topCreatives && s.topCreatives.length > 0 ? '🏆 Top 500+: ' + s.topCreatives.length + ' × €' + (s.topBonus / s.topCreatives.length).toFixed(0) + ' = €' + s.topBonus.toFixed(2) : '🏆 Top 500+: None yet'}</div>
+                        <div class="bonus-grid">
+                            <div class="bonus-display ${s.bonusPerPiece > 0 ? '' : 'inactive'}">
+                                <div class="bonus-label">💰 Success Rate</div>
+                                <div class="bonus-amount">€${(s.successBonus || 0).toFixed(2)}</div>
+                                <div class="bonus-rate">€${s.bonusPerPiece} / creative</div>
+                                <div class="bonus-breakdown">
+                                    <div class="bonus-line">${s.bonusPerPiece > 0 ? '✓ ' + s.successful + ' successful' : '✗ Below 15%'}</div>
+                                </div>
                             </div>
+                            <div class="bonus-display trophy ${s.topCreatives && s.topCreatives.length > 0 ? '' : 'inactive'}">
+                                <div class="bonus-label">🏆 Top 500+</div>
+                                <div class="bonus-amount">€${(s.topBonus || 0).toFixed(2)}</div>
+                                <div class="bonus-rate">${s.topCreatives && s.topCreatives.length > 0 ? '€' + (s.topBonus / s.topCreatives.length).toFixed(0) + ' / creative' : '—'}</div>
+                                <div class="bonus-breakdown">
+                                    <div class="bonus-line">${s.topCreatives && s.topCreatives.length > 0 ? '✓ ' + s.topCreatives.length + ' top creatives' : 'None yet'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bonus-total">
+                            <div class="bonus-total-label">TOTAL BONUS</div>
+                            <div class="bonus-total-amount">€${s.totalBonus.toFixed(2)}</div>
                         </div>
                     </div>
                 `;
