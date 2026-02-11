@@ -1,232 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Kreativko</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Login | Kreativko</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-base: #050507;
-            --bg-raised: #0c0c0f;
-            --bg-overlay: #16161a;
-            --border-subtle: rgba(255,255,255,0.04);
-            --border-default: rgba(255,255,255,0.08);
-            --text-primary: #fafafa;
-            --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
-            --accent-primary: #a855f7;
-            --accent-red: #ef4444;
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
-            --shadow-glow: 0 0 40px rgba(168, 85, 247, 0.15);
-            --radius: 10px;
-            --radius-lg: 14px;
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-base);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .login-container {
-            background: var(--bg-raised);
-            border: 1px solid var(--border-default);
-            border-radius: var(--radius-lg);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-        }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        
-        .logo-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 800;
-            color: white;
-            margin: 0 auto 16px;
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-        }
-        
-        .logo h1 {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .logo p {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-top: 4px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-overlay);
-            border: 1px solid var(--border-default);
-            border-radius: var(--radius);
-            color: var(--text-primary);
-            font-size: 15px;
-            font-family: inherit;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
-        }
-        
-        .form-group input::placeholder {
-            color: var(--text-muted);
-        }
-        
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--accent-red);
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            font-size: 14px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            border: none;
-            border-radius: var(--radius);
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+:root {
+    --bg-base: #050507;
+    --bg-raised: #0c0c0f;
+    --bg-subtle: #111114;
+    --border-subtle: rgba(255,255,255,0.04);
+    --border-default: rgba(255,255,255,0.08);
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --accent-primary: #a855f7;
+    --accent-primary-soft: rgba(168, 85, 247, 0.12);
+    --accent-red: #ef4444;
+    --gradient-1: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+    --shadow-glow: 0 0 40px rgba(168, 85, 247, 0.15);
+    --radius: 10px;
+    --radius-lg: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+}
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 24px;
+}
+.login-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-md);
+}
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.logo {
+    width: 64px;
+    height: 64px;
+    background: var(--gradient-1);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: white;
+    margin: 0 auto 16px;
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+.login-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.login-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+.form-input::placeholder {
+    color: var(--text-muted);
+}
+.btn-login {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--gradient-1);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+.btn-login:hover {
+    opacity: 0.9;
+}
+.error-msg {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: none;
+}
+.error-msg.show {
+    display: block;
+}
+.footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">
-            <div class="logo-icon">K</div>
-            <h1>Kreativko</h1>
-            <p>Creator Reward System</p>
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">K</div>
+                <h1 class="login-title">Kreativko</h1>
+                <p class="login-subtitle">Creator Reward System</p>
+            </div>
+            <div class="error-msg" id="errorMsg">Invalid username or password</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="username" placeholder="Enter username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="password" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
         </div>
-        
-        <div class="error-message" id="error"></div>
-        
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter username" autocomplete="username" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" required>
-            </div>
-            
-            <button type="submit" class="submit-btn" id="submitBtn">Sign In</button>
-        </form>
+        <p class="footer">NORIKS © 2026</p>
     </div>
-    
     <script>
-        const form = document.getElementById('loginForm');
-        const errorEl = document.getElementById('error');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Signing in...';
-            errorEl.classList.remove('show');
-            
-            try {
-                const res = await fetch('/kreativko/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await res.json();
-                
-                if (data.ok) {
-                    window.location.href = '/kreativko/';
-                } else {
-                    errorEl.textContent = data.error || 'Invalid credentials';
-                    errorEl.classList.add('show');
-                }
-            } catch (err) {
-                errorEl.textContent = 'Connection error. Please try again.';
-                errorEl.classList.add('show');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign In';
-            }
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMsg');
+    
+    try {
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
         });
         
-        document.getElementById('username').focus();
+        if (res.ok) {
+            window.location.href = '/';
+        } else {
+            errorMsg.classList.add('show');
+        }
+    } catch (err) {
+        errorMsg.classList.add('show');
+    }
+});
     </script>
 </body>
 </html>

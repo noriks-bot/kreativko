@@ -34,11 +34,11 @@
     "createdAt": 1770481492533,
     "expiresAt": 1771086292533
   },
-  "7f80c31d54139b490972783bcc24a2222fa24f79b5f53df046c018d1d20b068f": {
-    "username": "grega",
-    "role": "creator",
-    "initials": "GP",
-    "createdAt": 1770482316572,
-    "expiresAt": 1771087116572
+  "8dc46c31169efef948fec59dd10b29f7e7b02b51051a4571f63bb850faf54951": {
+    "username": "noriks",
+    "role": "admin",
+    "initials": null,
+    "createdAt": 1770714570323,
+    "expiresAt": 1771319370323
   }
 }
