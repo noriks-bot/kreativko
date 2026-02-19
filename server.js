@@ -304,23 +304,27 @@ async function refreshCurrentMonth() {
     return data;
 }
 
-// Schedule daily refresh at 3 AM
-function scheduleDailyRefresh() {
-    const now = new Date();
-    const next3AM = new Date(now);
-    next3AM.setHours(3, 0, 0, 0);
-    if (now >= next3AM) {
-        next3AM.setDate(next3AM.getDate() + 1);
-    }
-    const msUntil3AM = next3AM - now;
+// Schedule hourly refresh
+function scheduleHourlyRefresh() {
+    const HOUR_MS = 60 * 60 * 1000;
     
-    console.log(`Next refresh scheduled at ${next3AM.toISOString()}`);
+    // Calculate ms until next full hour
+    const now = new Date();
+    const nextHour = new Date(now);
+    nextHour.setMinutes(0, 0, 0);
+    nextHour.setHours(nextHour.getHours() + 1);
+    const msUntilNextHour = nextHour - now;
+    
+    console.log(`Hourly refresh enabled. Next refresh at ${nextHour.toISOString()}`);
     
     setTimeout(() => {
         refreshCurrentMonth().catch(console.error);
-        // Then every 24 hours
-        setInterval(() => refreshCurrentMonth().catch(console.error), 24 * 60 * 60 * 1000);
-    }, msUntil3AM);
+        // Then every hour
+        setInterval(() => {
+            console.log(`Hourly refresh triggered at ${new Date().toISOString()}`);
+            refreshCurrentMonth().catch(console.error);
+        }, HOUR_MS);
+    }, msUntilNextHour);
 }
 
 // Users with role-based access
@@ -462,7 +466,7 @@ const server = http.createServer(async (req, res) => {
                 
                 if (user && user.password === password) {
                     const token = createSession(username, user.role, user.initials);
-                    res.setHeader('Set-Cookie', `kreativko_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_DURATION / 1000}`);
+                    res.setHeader('Set-Cookie', `kreativko_session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DURATION / 1000}`);
                     res.end(JSON.stringify({ ok: true, username, role: user.role, initials: user.initials }));
                 } else {
                     res.statusCode = 401;
@@ -687,6 +691,6 @@ server.listen(PORT, async () => {
         console.error('Initial refresh failed:', e.message);
     }
     
-    // Schedule daily refresh at 3 AM
-    scheduleDailyRefresh();
+    // Schedule hourly refresh
+    scheduleHourlyRefresh();
 });

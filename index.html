@@ -1,385 +1,524 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="sl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kreativko | Noriks</title>
+    <title>Kreativko | NORIKS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-:root {
-    --bg-base: #050507;
-    --bg-raised: #0c0c0f;
-    --bg-overlay: #16161a;
-    --bg-subtle: #111114;
-    --bg-hover: #1c1c21;
-    --border-subtle: rgba(255,255,255,0.04);
-    --border-default: rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.12);
-    --text-primary: #fafafa;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --text-dim: #52525b;
-    --accent-primary: #a855f7;
-    --accent-primary-soft: rgba(168, 85, 247, 0.12);
-    --accent-green: #10b981;
-    --accent-green-soft: rgba(16, 185, 129, 0.12);
-    --accent-amber: #f59e0b;
-    --accent-amber-soft: rgba(245, 158, 11, 0.12);
-    --accent-red: #ef4444;
-    --accent-red-soft: rgba(239, 68, 68, 0.12);
-    --accent-cyan: #06b6d4;
-    --accent-cyan-soft: rgba(6, 182, 212, 0.12);
-    --accent-blue: #6366f1;
-    --accent-blue-soft: rgba(99, 102, 241, 0.12);
-    --gradient-1: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-    --gradient-2: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    --gradient-3: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.5);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
-    --shadow-glow: 0 0 40px rgba(168, 85, 247, 0.15);
-    --radius: 10px;
-    --radius-lg: 14px;
-}
-
-[data-theme="light"] {
-    --bg-base: #f8fafc;
-    --bg-raised: #ffffff;
-    --bg-overlay: #f1f5f9;
-    --bg-subtle: #f8fafc;
-    --bg-hover: #e2e8f0;
-    --border-subtle: rgba(0,0,0,0.04);
-    --border-default: rgba(0,0,0,0.08);
-    --border-strong: rgba(0,0,0,0.12);
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
-    --text-dim: #94a3b8;
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-glow: 0 0 40px rgba(168, 85, 247, 0.08);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { 
-    font-family: 'Inter', system-ui, sans-serif; 
-    background: var(--bg-base); 
-    color: var(--text-primary);
-    min-height: 100vh;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-}
-
-.dashboard { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 24px 48px; }
-
-/* Header */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 0;
-    border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 32px;
-}
-.header-left { display: flex; align-items: center; gap: 16px; }
-.logo { display: flex; align-items: center; gap: 12px; }
-.logo-icon {
-    width: 40px; height: 40px;
-    background: var(--gradient-1);
-    border-radius: var(--radius);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 800; color: white;
-    box-shadow: var(--shadow-md), var(--shadow-glow);
-}
-.logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
-.header-divider { color: var(--text-dim); }
-.header-title { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.theme-toggle {
-    width: 36px; height: 36px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-default);
-    background: var(--bg-raised);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-}
-.theme-toggle:hover { background: var(--bg-hover); border-color: var(--border-strong); }
-.header-time, .header-badge {
-    font-size: 12px; color: var(--text-muted);
-    padding: 8px 14px;
-    background: var(--bg-raised);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius);
-}
-.btn-logout {
-    padding: 8px 14px;
-    background: var(--accent-red-soft);
-    border: none;
-    border-radius: var(--radius);
-    color: var(--accent-red);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-.btn-logout:hover { background: rgba(239, 68, 68, 0.2); }
-
-/* Month Filter */
-.month-filter {
-    display: flex; gap: 4px; flex-wrap: wrap;
-    background: var(--bg-subtle);
-    padding: 4px;
-    border-radius: var(--radius);
-    margin-bottom: 24px;
-}
-.month-btn {
-    padding: 8px 16px;
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-.month-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
-.month-btn.active {
-    background: var(--accent-primary);
-    color: white;
-    box-shadow: var(--shadow-sm);
-}
-
-/* Cards */
-.card {
-    background: var(--bg-raised);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    margin-bottom: 24px;
-    box-shadow: var(--shadow-sm);
-}
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border-subtle);
-}
-.card-header h2 { font-size: 15px; font-weight: 600; }
-.card-badges { display: flex; gap: 8px; }
-.badge {
-    font-size: 11px; font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 100px;
-    background: var(--bg-overlay);
-    color: var(--text-secondary);
-}
-.badge.green { background: var(--accent-green-soft); color: var(--accent-green); }
-.badge.amber { background: var(--accent-amber-soft); color: var(--accent-amber); }
-.badge.purple { background: var(--accent-primary-soft); color: var(--accent-primary); }
-.card-body { padding: 24px; }
-.card-body.no-padding { padding: 0; }
-
-/* Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-}
-.stat-card {
-    background: var(--bg-subtle);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius);
-    padding: 20px;
-}
-.stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-.stat-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
-.stat-value.green { color: var(--accent-green); }
-.stat-value.amber { color: var(--accent-amber); }
-.stat-value.purple { color: var(--accent-primary); }
-.stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
-/* Creator Cards */
-.creators-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
-}
-.creator-card {
-    background: var(--bg-subtle);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-}
-.creator-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--gradient-1);
-}
-.creator-card.green::before { background: var(--gradient-2); }
-.creator-card.amber::before { background: var(--gradient-3); }
-.creator-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-.creator-avatar {
-    width: 56px; height: 56px;
-    border-radius: var(--radius);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; font-weight: 700; color: white;
-    background: var(--gradient-1);
-}
-.creator-card.green .creator-avatar { background: var(--gradient-2); }
-.creator-card.amber .creator-avatar { background: var(--gradient-3); }
-.creator-name { font-size: 16px; font-weight: 600; }
-.creator-initials { font-size: 12px; color: var(--text-muted); }
-.creator-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-.creator-stat { text-align: center; padding: 12px; background: var(--bg-base); border-radius: 8px; }
-.creator-stat-value { font-size: 20px; font-weight: 700; }
-.creator-stat-label { font-size: 11px; color: var(--text-muted); }
-.creator-bonus {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 16px;
-    background: var(--accent-green-soft);
-    border-radius: 8px;
-}
-.bonus-label { font-size: 13px; font-weight: 500; color: var(--accent-green); }
-.bonus-value { font-size: 24px; font-weight: 700; color: var(--accent-green); }
-
-/* Table */
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.data-table th {
-    text-align: left;
-    padding: 14px 20px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-    background: var(--bg-subtle);
-    border-bottom: 1px solid var(--border-subtle);
-}
-.data-table td {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
-}
-.data-table tr:hover td { background: var(--bg-hover); }
-.data-table .success { color: var(--accent-green); }
-.data-table .fail { color: var(--text-dim); }
-.creative-name { font-weight: 500; color: var(--text-primary); max-width: 400px; word-break: break-all; }
-
-/* Tier Table */
-.tier-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.tier-table th, .tier-table td { padding: 12px 16px; text-align: center; }
-.tier-table th { background: var(--bg-subtle); color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
-.tier-table td { border-bottom: 1px solid var(--border-subtle); }
-.tier-table .active { background: var(--accent-green-soft); color: var(--accent-green); font-weight: 600; }
-
-/* Footer */
-.footer {
-    text-align: center;
-    padding: 24px;
-    color: var(--text-dim);
-    font-size: 12px;
-    border-top: 1px solid var(--border-subtle);
-    margin-top: 48px;
-}
-
-/* Loading */
-.loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
-    color: var(--text-muted);
-}
-.spinner {
-    width: 24px; height: 24px;
-    border: 2px solid var(--border-default);
-    border-top-color: var(--accent-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 12px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+        :root {
+            --bg: #0f1117;
+            --bg-card: #181b23;
+            --bg-hover: #1f232d;
+            --border: #2a2f3a;
+            --text: #f4f4f5;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --green: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, 0.12);
+            --orange: #f97316;
+            --orange-bg: rgba(249, 115, 22, 0.12);
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, 0.12);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--purple);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--green-bg);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green);
+        }
+        
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+        
+        .btn {
+            padding: 9px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: #3f4555;
+        }
+        
+        .btn-logout {
+            background: var(--red-bg);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+        
+        /* Month Filter */
+        .month-filter {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        
+        .month-btn {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .month-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+        
+        .month-btn.active {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: white;
+        }
+        
+        .month-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .stat-card.green { border-left: 3px solid var(--green); }
+        .stat-card.orange { border-left: 3px solid var(--orange); }
+        .stat-card.purple { border-left: 3px solid var(--purple); }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .stat-card.green .stat-value { color: var(--green); }
+        .stat-card.orange .stat-value { color: var(--orange); }
+        .stat-card.purple .stat-value { color: var(--purple); }
+        
+        .stat-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* Creator Cards */
+        .creators-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .creator-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 3px solid var(--purple);
+        }
+        
+        .creator-card.green { border-top-color: var(--green); }
+        .creator-card.orange { border-top-color: var(--orange); }
+        
+        .creator-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .creator-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--purple);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .creator-card.green .creator-avatar { background: var(--green); }
+        .creator-card.orange .creator-avatar { background: var(--orange); }
+        
+        .creator-name { font-size: 16px; font-weight: 600; }
+        .creator-initials { font-size: 12px; color: var(--text-muted); }
+        
+        .creator-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .creator-stat {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .creator-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .creator-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .creator-bonus {
+            background: var(--green-bg);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bonus-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--green);
+        }
+        
+        .bonus-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--green);
+        }
+        
+        /* Table Card */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .table-badges {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.default {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+        }
+        
+        .badge.green {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        
+        .table-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        th {
+            background: #14171f;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        td.success { color: var(--green); font-weight: 600; }
+        td.fail { color: var(--text-muted); }
+        
+        .creative-name {
+            font-weight: 500;
+            color: var(--text);
+            max-width: 350px;
+            word-break: break-all;
+        }
+        
+        /* Tier Table */
+        .tier-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .tier-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tier-header h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .tier-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .tier-table th, .tier-table td {
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        .tier-table th {
+            background: #14171f;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .tier-table td {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tier-table td.active {
+            background: var(--green-bg);
+            color: var(--green);
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 1000px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .creators-grid { grid-template-columns: 1fr; }
+            .container { padding: 16px; }
+        }
     </style>
 </head>
 <body>
-    <div class="dashboard">
+    <div class="container">
         <header class="header">
-            <div class="header-left">
-                <div class="logo">
-                    <span class="logo-icon">K</span>
-                    <span class="logo-text">NORIKS</span>
+            <div class="logo">
+                <div class="logo-icon">💰</div>
+                <div>
+                    <h1>Kreativko</h1>
+                    <p>Creator Reward System</p>
                 </div>
-                <span class="header-divider">|</span>
-                <span class="header-title">Kreativko <span style="color:var(--accent-green);font-size:10px;">● LIVE</span></span>
             </div>
             <div class="header-right">
-                <button class="theme-toggle" id="themeToggle"><span class="theme-icon">🌙</span></button>
-                <span class="header-time" id="currentTime"></span>
-                <span class="header-badge" id="refreshIndicator">↻ 60s</span>
-                <span class="header-badge" id="userInfo">👤 Loading...</span>
-                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    Povezano
+                </div>
+                <span id="userInfo" style="font-size:12px;color:var(--text-muted);">👤 Loading...</span>
+                <button class="btn" onclick="loadData(currentMonth)">↻ Osveži</button>
+                <button class="btn btn-logout" onclick="logout()">🚪</button>
             </div>
         </header>
-
+        
         <div class="month-filter" id="monthFilter"></div>
-
-        <div id="content">
-            <div class="loading"><div class="spinner"></div>Loading data...</div>
-        </div>
-
+        
+        <main id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Nalagam...</p>
+            </div>
+        </main>
+        
         <footer class="footer">
-            <p>Built by 💻 Roki | NORIKS © 2026</p>
+            Built by 💻 Roki · NORIKS © 2026
         </footer>
     </div>
-
+    
     <script>
-// Theme
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = themeToggle?.querySelector('.theme-icon');
-const html = document.documentElement;
-const savedTheme = localStorage.getItem('kreativko-theme') || 'dark';
-html.setAttribute('data-theme', savedTheme);
-if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
-themeToggle?.addEventListener('click', () => {
-    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('kreativko-theme', next);
-    if (themeIcon) themeIcon.textContent = next === 'dark' ? '🌙' : '☀️';
-});
-
-// Time
-function updateTime() {
-    const el = document.getElementById('currentTime');
-    if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' UTC';
-}
-updateTime();
-setInterval(updateTime, 1000);
-
-// Countdown
-let countdown = 60;
-setInterval(() => {
-    const el = document.getElementById('refreshIndicator');
-    if (el) el.textContent = '↻ ' + countdown + 's';
-    if (--countdown < 0) { countdown = 60; loadData(currentMonth); }
-}, 1000);
-
-// Logout
 function logout() {
-    fetch('/logout', { method: 'POST' }).then(() => window.location.href = '/login');
+    fetch('api/logout').then(() => window.location.href = 'login');
 }
 
-// State
 let currentMonth = new Date().getMonth() + 1;
 let currentYear = new Date().getFullYear();
 let userRole = 'admin';
 let userInitials = null;
 
-// Month filter
 function renderMonthFilter() {
     const container = document.getElementById('monthFilter');
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -388,7 +527,7 @@ function renderMonthFilter() {
         const month = i + 1;
         const isActive = month === currentMonth;
         const isFuture = month > now.getMonth() + 1;
-        return `<button class="month-btn ${isActive ? 'active' : ''}" ${isFuture ? 'disabled style="opacity:0.3"' : ''} onclick="selectMonth(${month})">${m}</button>`;
+        return `<button class="month-btn ${isActive ? 'active' : ''}" ${isFuture ? 'disabled' : ''} onclick="selectMonth(${month})">${m}</button>`;
     }).join('');
 }
 
@@ -398,35 +537,33 @@ function selectMonth(month) {
     loadData(month);
 }
 
-// Load data
 async function loadData(month) {
     const content = document.getElementById('content');
-    content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading data...</div>';
+    content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Nalagam...</p></div>';
     
     try {
-        const res = await fetch(`/api/data?year=${currentYear}&month=${month}`);
+        const res = await fetch(`api/creatives?year=${currentYear}&month=${month}`);
         if (!res.ok) {
-            if (res.status === 401) { window.location.href = '/login'; return; }
+            if (res.status === 401) { window.location.href = 'login'; return; }
             throw new Error('API Error');
         }
-        const json = await res.json();
-        userRole = json.userRole || 'admin';
-        userInitials = json.userInitials;
-        document.getElementById('userInfo').textContent = '👤 ' + (json.userName || 'Admin');
-        renderData(json.data);
+        const data = await res.json();
+        userRole = data.userRole || 'admin';
+        userInitials = data.userInitials;
+        document.getElementById('userInfo').textContent = '👤 Admin';
+        renderData(data);
     } catch (e) {
-        content.innerHTML = '<div class="loading">Error loading data</div>';
+        console.error(e);
+        content.innerHTML = '<div class="loading"><p style="color:var(--red);">Napaka pri nalaganju</p></div>';
     }
 }
 
-// Render
 function renderData(data) {
     const content = document.getElementById('content');
     const stats = data.creatorStats;
     const creatives = data.creatives;
     const top = data.topCreatives;
     
-    // Filter for creator role
     let filteredStats = stats;
     let filteredCreatives = creatives;
     if (userRole === 'creator' && userInitials) {
@@ -434,174 +571,151 @@ function renderData(data) {
         filteredCreatives = creatives.filter(c => c.creator === userInitials);
     }
     
-    // Calculate totals
     const totalCreatives = Object.values(filteredStats).reduce((a, c) => a + c.total, 0);
     const totalSuccessful = Object.values(filteredStats).reduce((a, c) => a + c.successful, 0);
     const totalBonus = Object.values(filteredStats).reduce((a, c) => a + c.totalBonus, 0);
     const avgSuccess = totalCreatives > 0 ? Math.round((totalSuccessful / totalCreatives) * 100) : 0;
     
+    const colors = ['purple', 'green', 'orange'];
+    
     content.innerHTML = `
-        <!-- Summary Stats -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Creatives</div>
+                <div class="stat-label">Total Kreativ</div>
                 <div class="stat-value">${totalCreatives}</div>
-                <div class="stat-sub">This month</div>
+                <div class="stat-sub">Ta mesec</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Successful (2+ purchases)</div>
-                <div class="stat-value green">${totalSuccessful}</div>
+            <div class="stat-card green">
+                <div class="stat-label">Uspešnih (2+ nakupov)</div>
+                <div class="stat-value">${totalSuccessful}</div>
                 <div class="stat-sub">${avgSuccess}% success rate</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Top Creatives (500+)</div>
-                <div class="stat-value amber">${top.count}</div>
-                <div class="stat-sub">€${top.bonusPerCreative}/each</div>
+            <div class="stat-card orange">
+                <div class="stat-label">Top Kreativ (500+)</div>
+                <div class="stat-value">${top.count}</div>
+                <div class="stat-sub">€${top.bonusPerCreative}/vsaka</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Bonus</div>
-                <div class="stat-value purple">€${totalBonus.toFixed(2)}</div>
-                <div class="stat-sub">All creators</div>
+            <div class="stat-card purple">
+                <div class="stat-label">Skupni Bonus</div>
+                <div class="stat-value">€${totalBonus.toFixed(0)}</div>
+                <div class="stat-sub">Vsi kreatorji</div>
             </div>
         </div>
         
-        <!-- Creator Cards -->
-        <section class="card">
-            <div class="card-header">
-                <h2>👥 Creator Performance</h2>
-                <div class="card-badges">
-                    <span class="badge">${Object.keys(filteredStats).length} Creators</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="creators-grid">
-                    ${Object.values(filteredStats).map((c, i) => `
-                        <div class="creator-card ${i === 0 ? 'purple' : i === 1 ? 'green' : 'amber'}">
-                            <div class="creator-header">
-                                <div class="creator-avatar">${c.initials}</div>
-                                <div>
-                                    <div class="creator-name">${c.name}</div>
-                                    <div class="creator-initials">${c.initials}</div>
-                                </div>
-                            </div>
-                            <div class="creator-stats">
-                                <div class="creator-stat">
-                                    <div class="creator-stat-value">${c.total}</div>
-                                    <div class="creator-stat-label">Total</div>
-                                </div>
-                                <div class="creator-stat">
-                                    <div class="creator-stat-value" style="color:var(--accent-green)">${c.successful}</div>
-                                    <div class="creator-stat-label">Successful</div>
-                                </div>
-                                <div class="creator-stat">
-                                    <div class="creator-stat-value">${c.successRate}%</div>
-                                    <div class="creator-stat-label">Success Rate</div>
-                                </div>
-                                <div class="creator-stat">
-                                    <div class="creator-stat-value" style="color:var(--accent-amber)">€${c.bonusPerPiece}</div>
-                                    <div class="creator-stat-label">Per Piece</div>
-                                </div>
-                            </div>
-                            <div class="creator-bonus">
-                                <span class="bonus-label">💰 Total Bonus</span>
-                                <span class="bonus-value">€${c.totalBonus.toFixed(2)}</span>
-                            </div>
+        <div class="creators-grid">
+            ${Object.values(filteredStats).map((c, i) => `
+                <div class="creator-card ${colors[i % 3]}">
+                    <div class="creator-header">
+                        <div class="creator-avatar">${c.initials}</div>
+                        <div>
+                            <div class="creator-name">${c.name}</div>
+                            <div class="creator-initials">${c.initials}</div>
                         </div>
-                    `).join('')}
+                    </div>
+                    <div class="creator-stats">
+                        <div class="creator-stat">
+                            <div class="creator-stat-value">${c.total}</div>
+                            <div class="creator-stat-label">Total</div>
+                        </div>
+                        <div class="creator-stat">
+                            <div class="creator-stat-value" style="color:var(--green)">${c.successful}</div>
+                            <div class="creator-stat-label">Uspešnih</div>
+                        </div>
+                        <div class="creator-stat">
+                            <div class="creator-stat-value">${c.successRate}%</div>
+                            <div class="creator-stat-label">Success</div>
+                        </div>
+                        <div class="creator-stat">
+                            <div class="creator-stat-value" style="color:var(--orange)">€${c.bonusPerPiece}</div>
+                            <div class="creator-stat-label">Per Piece</div>
+                        </div>
+                    </div>
+                    <div class="creator-bonus">
+                        <span class="bonus-label">💰 Skupni Bonus</span>
+                        <span class="bonus-value">€${c.totalBonus.toFixed(0)}</span>
+                    </div>
                 </div>
-            </div>
-        </section>
+            `).join('')}
+        </div>
         
-        <!-- Bonus Tiers -->
-        <section class="card">
-            <div class="card-header">
-                <h2>📊 Success Rate Bonus Tiers</h2>
-            </div>
-            <div class="card-body no-padding">
-                <table class="tier-table">
-                    <thead>
-                        <tr>
-                            <th>Success Rate</th>
-                            <th>&lt;15%</th>
-                            <th>15-19%</th>
-                            <th>20-29%</th>
-                            <th>30-39%</th>
-                            <th>40-69%</th>
-                            <th>70%+</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Bonus/Piece</strong></td>
-                            <td class="${avgSuccess < 15 ? 'active' : ''}">€0</td>
-                            <td class="${avgSuccess >= 15 && avgSuccess < 20 ? 'active' : ''}">€2</td>
-                            <td class="${avgSuccess >= 20 && avgSuccess < 30 ? 'active' : ''}">€3</td>
-                            <td class="${avgSuccess >= 30 && avgSuccess < 40 ? 'active' : ''}">€3.50</td>
-                            <td class="${avgSuccess >= 40 && avgSuccess < 70 ? 'active' : ''}">€5</td>
-                            <td class="${avgSuccess >= 70 ? 'active' : ''}">€10</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        <div class="tier-card">
+            <div class="tier-header"><h2>📊 Success Rate Bonus Tiers</h2></div>
+            <table class="tier-table">
+                <thead>
+                    <tr>
+                        <th>Success Rate</th>
+                        <th>&lt;15%</th>
+                        <th>15-19%</th>
+                        <th>20-29%</th>
+                        <th>30-39%</th>
+                        <th>40-69%</th>
+                        <th>70%+</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Bonus/Piece</strong></td>
+                        <td class="${avgSuccess < 15 ? 'active' : ''}">€0</td>
+                        <td class="${avgSuccess >= 15 && avgSuccess < 20 ? 'active' : ''}">€2</td>
+                        <td class="${avgSuccess >= 20 && avgSuccess < 30 ? 'active' : ''}">€3</td>
+                        <td class="${avgSuccess >= 30 && avgSuccess < 40 ? 'active' : ''}">€3.50</td>
+                        <td class="${avgSuccess >= 40 && avgSuccess < 70 ? 'active' : ''}">€5</td>
+                        <td class="${avgSuccess >= 70 ? 'active' : ''}">€10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
-        <!-- Top Creatives Tiers -->
-        <section class="card">
-            <div class="card-header">
+        <div class="tier-card">
+            <div class="tier-header">
                 <h2>🏆 Top Creatives Bonus (500+ Sales)</h2>
-                <div class="card-badges">
-                    <span class="badge amber">${top.count} Top Creatives</span>
-                </div>
             </div>
-            <div class="card-body no-padding">
-                <table class="tier-table">
-                    <thead>
-                        <tr>
-                            <th>Count</th>
-                            <th>1-5</th>
-                            <th>6-10</th>
-                            <th>11-15</th>
-                            <th>16-20</th>
-                            <th>21-30</th>
-                            <th>31-40</th>
-                            <th>41-50</th>
-                            <th>51+</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Bonus/Creative</strong></td>
-                            <td class="${top.count >= 1 && top.count <= 5 ? 'active' : ''}">€40</td>
-                            <td class="${top.count >= 6 && top.count <= 10 ? 'active' : ''}">€50</td>
-                            <td class="${top.count >= 11 && top.count <= 15 ? 'active' : ''}">€60</td>
-                            <td class="${top.count >= 16 && top.count <= 20 ? 'active' : ''}">€70</td>
-                            <td class="${top.count >= 21 && top.count <= 30 ? 'active' : ''}">€80</td>
-                            <td class="${top.count >= 31 && top.count <= 40 ? 'active' : ''}">€90</td>
-                            <td class="${top.count >= 41 && top.count <= 50 ? 'active' : ''}">€100</td>
-                            <td class="${top.count >= 51 ? 'active' : ''}">Special</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+            <table class="tier-table">
+                <thead>
+                    <tr>
+                        <th>Število</th>
+                        <th>1-5</th>
+                        <th>6-10</th>
+                        <th>11-15</th>
+                        <th>16-20</th>
+                        <th>21-30</th>
+                        <th>31-40</th>
+                        <th>41-50</th>
+                        <th>51+</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Bonus/Creative</strong></td>
+                        <td class="${top.count >= 1 && top.count <= 5 ? 'active' : ''}">€40</td>
+                        <td class="${top.count >= 6 && top.count <= 10 ? 'active' : ''}">€50</td>
+                        <td class="${top.count >= 11 && top.count <= 15 ? 'active' : ''}">€60</td>
+                        <td class="${top.count >= 16 && top.count <= 20 ? 'active' : ''}">€70</td>
+                        <td class="${top.count >= 21 && top.count <= 30 ? 'active' : ''}">€80</td>
+                        <td class="${top.count >= 31 && top.count <= 40 ? 'active' : ''}">€90</td>
+                        <td class="${top.count >= 41 && top.count <= 50 ? 'active' : ''}">€100</td>
+                        <td class="${top.count >= 51 ? 'active' : ''}">Special</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
-        <!-- Creatives Table -->
-        <section class="card">
-            <div class="card-header">
-                <h2>📋 All Creatives</h2>
-                <div class="card-badges">
-                    <span class="badge">${filteredCreatives.length} Total</span>
-                    <span class="badge green">${filteredCreatives.filter(c => c.successful).length} Successful</span>
+        <div class="table-card">
+            <div class="table-header">
+                <h2>📋 Vse Kreative</h2>
+                <div class="table-badges">
+                    <span class="badge default">${filteredCreatives.length} Total</span>
+                    <span class="badge green">${filteredCreatives.filter(c => c.successful).length} Uspešnih</span>
                 </div>
             </div>
-            <div class="card-body no-padding">
-                <table class="data-table">
+            <div class="table-scroll">
+                <table>
                     <thead>
                         <tr>
-                            <th>Creative</th>
-                            <th>Creator</th>
+                            <th>Kreativa</th>
+                            <th>Kreator</th>
                             <th>Spend</th>
-                            <th>Purchases</th>
+                            <th>Nakupi</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -612,21 +726,20 @@ function renderData(data) {
                                 <td>${c.creatorName} (${c.creator})</td>
                                 <td>€${c.spend.toFixed(2)}</td>
                                 <td>${c.purchases}</td>
-                                <td class="${c.successful ? 'success' : 'fail'}">${c.successful ? '✅ Success' : '❌ Failed'}</td>
+                                <td class="${c.successful ? 'success' : 'fail'}">${c.successful ? '✅ Uspešna' : '❌ Neuspešna'}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             </div>
-        </section>
+        </div>
         
-        <p style="text-align:center;color:var(--text-dim);font-size:11px;margin-top:16px;">
-            Last updated: ${new Date(data.lastUpdated).toLocaleString()}
+        <p style="text-align:center;color:var(--text-muted);font-size:11px;">
+            Zadnja posodobitev: ${new Date(data.lastUpdated).toLocaleString('sl-SI')}
         </p>
     `;
 }
 
-// Init
 renderMonthFilter();
 loadData(currentMonth);
     </script>
