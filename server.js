@@ -103,21 +103,12 @@ async function fetchCreativesFromMeta(year, month) {
         'DM': { name: 'Dusan Mojsilovic', initials: 'DM' }
     };
 
-    // Parse creatives
-    const creatives = {};
+    // Parse creatives - each row separately (no grouping)
+    const creativesList = [];
 
     for (const row of allData) {
         const adName = row.ad_name || '';
         const spend = parseFloat(row.spend || 0);
-
-        // Filter: month in creative name must match selected month
-        const dateMatch = adName.match(/(\d{2})-(\d{2})-(\d{2})/);
-        if (dateMatch) {
-            const creativeMonth = dateMatch[2];
-            if (creativeMonth !== selectedMonth) {
-                continue;
-            }
-        }
 
         let purchases = 0;
         if (row.actions) {
@@ -139,35 +130,27 @@ async function fetchCreativesFromMeta(year, month) {
             creatorInitials = midMatch[1].toUpperCase();
         }
 
-        if (!creatives[adName]) {
-            creatives[adName] = {
-                name: adName,
-                creator: creatorInitials,
-                creatorName: creators[creatorInitials]?.name || 'Unknown',
-                spend: 0,
-                purchases: 0,
-                successful: false
-            };
-        }
-        creatives[adName].spend += spend;
-        creatives[adName].purchases += purchases;
-    }
+        // Skip if no creator detected
+        if (creatorInitials === 'UNKNOWN') continue;
 
-    // Mark successful (2+ purchases) and extract creative ID
-    for (const creative of Object.values(creatives)) {
-        creative.successful = creative.purchases >= 2;
-        creative.spend = Math.round(creative.spend * 100) / 100;
-        
         // Extract creative ID (first part before __ or _)
-        // ID333__07-02-26_HR_SHIRTS_NEW_VIDEO_GP → ID333
-        const idMatch = creative.name.match(/^([A-Za-z0-9]+)(?:__|_)/);
-        creative.creativeId = idMatch ? idMatch[1] : creative.name;
+        const idMatch = adName.match(/^([A-Za-z0-9]+)(?:__|_)/);
+        const creativeId = idMatch ? idMatch[1] : adName;
+
+        creativesList.push({
+            name: adName,
+            creator: creatorInitials,
+            creatorName: creators[creatorInitials]?.name || 'Unknown',
+            spend: Math.round(spend * 100) / 100,
+            purchases,
+            successful: purchases >= 2,
+            creativeId
+        });
     }
 
     // Group creatives by ID for TOP CREATIVES bonus calculation
     const creativesByIdGlobal = {};
-    for (const creative of Object.values(creatives)) {
-        if (creative.creator === 'UNKNOWN') continue;
+    for (const creative of creativesList) {
         const id = creative.creativeId;
         if (!creativesByIdGlobal[id]) {
             creativesByIdGlobal[id] = {
@@ -222,7 +205,7 @@ async function fetchCreativesFromMeta(year, month) {
     // Calculate stats per creator
     const creatorStats = {};
     for (const initials of ['TK', 'GP', 'DM']) {
-        const creatorCreatives = Object.values(creatives).filter(c => c.creator === initials);
+        const creatorCreatives = creativesList.filter(c => c.creator === initials);
         const total = creatorCreatives.length;
         const successful = creatorCreatives.filter(c => c.successful).length;
         const successRate = total > 0 ? (successful / total) * 100 : 0;
@@ -252,9 +235,8 @@ async function fetchCreativesFromMeta(year, month) {
         };
     }
 
-    const creativesList = Object.values(creatives)
-        .filter(c => c.creator !== 'UNKNOWN')
-        .sort((a, b) => b.purchases - a.purchases);
+    // Sort creatives by purchases (descending)
+    creativesList.sort((a, b) => b.purchases - a.purchases);
 
     // Top creatives summary
     const topCreativesSummary = {
