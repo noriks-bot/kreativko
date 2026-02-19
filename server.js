@@ -134,8 +134,9 @@ async function fetchCreativesFromMeta(year, month) {
         }
 
         // Extract creator initials
+        // Handles: _TK, _TK(1), _TK(2), _TK_something, -TK, etc.
         let creatorInitials = 'UNKNOWN';
-        const endMatch = adName.match(/[-_](TK|GP|DM)$/i);
+        const endMatch = adName.match(/[-_](TK|GP|DM)(?:\(\d+\))?$/i);
         const midMatch = adName.match(/[-_](TK|GP|DM)[-_]/i);
         if (endMatch) {
             creatorInitials = endMatch[1].toUpperCase();
