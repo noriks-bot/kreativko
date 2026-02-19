@@ -113,7 +113,8 @@ async function fetchCreativesFromMeta(year, month) {
         let purchases = 0;
         if (row.actions) {
             for (const action of row.actions) {
-                if (action.action_type === 'purchase' || action.action_type === 'omni_purchase') {
+                // Only count 'purchase', not 'omni_purchase' (same conversion, would double-count)
+                if (action.action_type === 'purchase') {
                     purchases += parseInt(action.value || 0);
                 }
             }
