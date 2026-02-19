@@ -110,11 +110,6 @@ async function fetchCreativesFromMeta(year, month) {
         const adName = row.ad_name || '';
         const spend = parseFloat(row.spend || 0);
 
-        // Filter: must contain "NEW" (case insensitive)
-        if (!adName.toUpperCase().includes('NEW')) {
-            continue;
-        }
-
         // Filter: month in creative name must match selected month
         const dateMatch = adName.match(/(\d{2})-(\d{2})-(\d{2})/);
         if (dateMatch) {
